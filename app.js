@@ -51,6 +51,7 @@ const els = {
   placeholderTitle: document.querySelector("#placeholderTitle"),
   questionType: document.querySelector("#questionType"),
   questionCount: document.querySelector("#questionCount"),
+  questionTags: document.querySelector("#questionTags"),
   questionText: document.querySelector("#questionText"),
   questionCode: document.querySelector("#questionCode"),
   questionHelp: document.querySelector("#questionHelp"),
@@ -212,6 +213,7 @@ function renderQuestion() {
   if (!question) {
     els.questionType.textContent = "待生成";
     els.questionCount.textContent = "0 / 0";
+    els.questionTags.innerHTML = "";
     els.questionText.textContent = "这个主题还没有练习题。";
     els.questionCode.textContent = "";
     els.questionCode.hidden = true;
@@ -223,6 +225,7 @@ function renderQuestion() {
 
   els.questionType.textContent = question.type;
   els.questionCount.textContent = `${state.questionIndex + 1} / ${currentQuestions().length}`;
+  renderQuestionTags(question);
   els.questionText.textContent = question.text;
   els.questionCode.textContent = question.code || "";
   els.questionCode.hidden = !question.code;
@@ -243,6 +246,13 @@ function renderQuestion() {
       .join("");
   els.answerFeedback.className = "feedback";
   els.answerFeedback.textContent = "";
+}
+
+function renderQuestionTags(question) {
+  const tags = [];
+  if (question.difficulty) tags.push(`难度：${question.difficulty}`);
+  for (const tag of question.tags || []) tags.push(tag);
+  els.questionTags.innerHTML = tags.map((tag) => `<span>${tag}</span>`).join("");
 }
 
 function isTextAnswer(question) {

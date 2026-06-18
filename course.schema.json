@@ -63,6 +63,11 @@
           "kind": { "type": "string", "enum": ["single", "multi", "fill", "code", "debug"] },
           "type": { "type": "string" },
           "skill": { "type": "string" },
+          "difficulty": { "type": "string", "enum": ["入门", "基础", "进阶", "挑战"] },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
           "text": { "type": "string" },
           "code": { "type": "string" },
           "options": {
