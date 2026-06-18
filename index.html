@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tech Tutor Lab - Ray</title>
+    <title>Vibe Learner</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -13,9 +13,17 @@
           <div class="brand-mark">R</div>
           <div>
             <p class="eyebrow">Tech Tutor Lab</p>
-            <h1>Ray 学习舱</h1>
+            <h1>Vibe Learner</h1>
           </div>
         </div>
+
+        <section class="topic-panel" aria-label="主题库">
+          <div class="section-heading compact">
+            <span>Topic Hub</span>
+            <strong id="topicCount">0</strong>
+          </div>
+          <div id="topicList" class="topic-list"></div>
+        </section>
 
         <nav class="lesson-nav" id="lessonNav" aria-label="课程章节"></nav>
 
@@ -44,16 +52,18 @@
           </div>
         </header>
 
-        <section class="hero-band" aria-label="Ray 架构学习区">
+        <section class="hero-band" id="heroBand" aria-label="主题学习区">
           <div class="hero-copy">
-            <p class="eyebrow">Agent-survey ready course</p>
-            <h3>从任务提交到集群执行，把 Ray 拆成能练会的知识块。</h3>
-            <p>
-              这版先用精选课程数据驱动；以后 Survey Agent 会把官方文档、论文和示例代码整理成同样的结构，再交给 Tutor Agent 出题和追问。
-            </p>
+            <p class="eyebrow" id="heroEyebrow">Agent-survey ready course</p>
+            <h3 id="heroTitle">加载主题中...</h3>
+            <p id="heroBody"></p>
           </div>
-          <figure class="architecture-figure">
-            <img src="./assets/ray-architecture.png" alt="Ray 架构教学图" />
+          <figure class="architecture-figure" id="heroFigure">
+            <img id="heroImage" src="./assets/ray-architecture.png" alt="主题架构图" />
+            <div class="topic-placeholder" id="topicPlaceholder" aria-hidden="true">
+              <span id="placeholderMark">VL</span>
+              <strong id="placeholderTitle">Topic</strong>
+            </div>
           </figure>
         </section>
 
@@ -71,7 +81,7 @@
             <aside class="map-panel" aria-label="知识地图">
               <div class="section-heading">
                 <span>Knowledge Map</span>
-                <strong>Ray</strong>
+                <strong id="mapTopicName">Topic</strong>
               </div>
               <div id="knowledgeMap" class="knowledge-map"></div>
             </aside>
@@ -121,12 +131,7 @@
                 <span>Roadmap</span>
                 <strong>下一步开发</strong>
               </div>
-              <ol class="roadmap-list">
-                <li>接入 Survey Agent，自动抓取和归纳技术主题。</li>
-                <li>把课程大纲、题库、答案解析保存成可版本化数据。</li>
-                <li>加入自由问答和追问，把学习者的回答转成掌握度。</li>
-                <li>支持更多主题：vLLM、Kubernetes、CUDA、Transformer。</li>
-              </ol>
+              <ol class="roadmap-list" id="roadmapList"></ol>
             </aside>
           </div>
         </section>

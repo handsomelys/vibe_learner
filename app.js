@@ -1,159 +1,12 @@
-const lessons = [
-  {
-    id: "architecture",
-    title: "Ray Core 架构总览",
-    summary:
-      "Ray 把本地 Python 调用扩展成分布式执行。Driver 提交任务，调度器根据资源放置任务，Worker 执行代码，Object Store 保存结果，ObjectRef 让后续任务和用户代码引用这些结果。",
-    concepts: [
-      {
-        name: "Driver",
-        body: "用户程序所在进程，负责调用 .remote() 提交任务或 Actor 方法。Driver 通常不直接干重活，而是组织计算图和取回结果。",
-      },
-      {
-        name: "Scheduler",
-        body: "根据 CPU、GPU、内存等资源，把任务安排到合适节点。它让用户不必手动管理每个进程应该跑在哪里。",
-      },
-      {
-        name: "Object Store",
-        body: "Ray 用共享对象存储保存任务结果和大对象。不同 Worker 可以通过 ObjectRef 引用对象，减少大数据在进程间反复复制。",
-      },
-    ],
-    skill: "架构",
-  },
-  {
-    id: "task",
-    title: "Task 与 ObjectRef",
-    summary:
-      "Task 是无状态远程函数。调用 remote() 会立即返回 ObjectRef，而不是阻塞等待真实结果。ray.get() 会在你真正需要结果时同步等待。",
-    concepts: [
-      {
-        name: "Task",
-        body: "适合并行执行相互独立的函数，例如批量特征处理、并行仿真、分布式推理前处理。",
-      },
-      {
-        name: "ObjectRef",
-        body: "它像一张取货单，代表未来或已经完成的分布式对象。ObjectRef 可以继续传给其他远程任务，形成依赖链。",
-      },
-      {
-        name: "ray.get",
-        body: "把 ObjectRef 解析成真实 Python 对象。过早 get 会降低并行度，通常应先提交一批任务，再批量取回结果。",
-      },
-    ],
-    skill: "Task",
-  },
-  {
-    id: "actor",
-    title: "Actor 与状态管理",
-    summary:
-      "Actor 是有状态的远程对象。它能在多次方法调用之间保存内存状态，适合模型服务、计数器、缓存、参数服务器和长期运行的环境实例。",
-    concepts: [
-      {
-        name: "有状态",
-        body: "Actor 内部字段会在方法调用之间保留，普通 Task 则应该被理解为无状态函数执行。",
-      },
-      {
-        name: "串行语义",
-        body: "默认情况下，同一个 Actor 的方法调用按顺序执行，这让状态更新更容易推理。高级场景可以配置并发。",
-      },
-      {
-        name: "服务化",
-        body: "一个加载了大模型或数据库连接的 Actor 可以长期驻留，避免每个任务重复初始化昂贵资源。",
-      },
-    ],
-    skill: "Actor",
-  },
-  {
-    id: "resource",
-    title: "资源调度与工程实践",
-    summary:
-      "Ray 的资源模型允许任务声明需要多少 CPU、GPU 或自定义资源。工程上常见的优化是批量提交任务、减少大对象复制、避免过早阻塞和合理使用 Actor。",
-    concepts: [
-      {
-        name: "资源声明",
-        body: "可以用 @ray.remote(num_cpus=2, num_gpus=1) 声明资源需求，Ray 会据此安排任务。",
-      },
-      {
-        name: "避免过早阻塞",
-        body: "循环里每次 remote 后立刻 ray.get 会把并行程序写回串行程序。更好的方式是先提交 refs，再统一 get。",
-      },
-      {
-        name: "数据局部性",
-        body: "大对象进入 Object Store 后，任务调度会尽量考虑对象位置。理解数据移动成本是写好 Ray 程序的关键。",
-      },
-    ],
-    skill: "工程",
-  },
-];
-
-const questions = [
-  {
-    lessonId: "architecture",
-    type: "单选题",
-    skill: "架构",
-    text: "在 Ray 程序中，Driver 最接近下面哪个角色？",
-    options: ["执行所有远程函数的 Worker", "提交任务并组织计算流程的用户进程", "只保存对象数据的存储服务", "专门负责 GPU 显存回收的组件"],
-    answer: 1,
-    explanation:
-      "Driver 是用户代码所在的进程，负责提交 Task、创建 Actor、调用 ray.get 等。真正执行远程代码的是 Worker。",
-  },
-  {
-    lessonId: "task",
-    type: "代码理解",
-    skill: "Task",
-    text: "调用 add.remote(1, 2) 后，Ray 默认立刻返回什么？",
-    options: ["整数 3", "ObjectRef", "Worker 进程 ID", "Head Node 地址"],
-    answer: 1,
-    explanation:
-      "remote() 会提交任务并返回 ObjectRef。只有 ray.get(ref) 时，才会把引用解析成真实结果。",
-  },
-  {
-    lessonId: "actor",
-    type: "单选题",
-    skill: "Actor",
-    text: "什么时候更适合用 Ray Actor，而不是普通 Task？",
-    options: ["需要保存跨多次调用的状态", "只想计算一次纯函数", "不需要任何远程执行", "只想把 Python 代码格式化"],
-    answer: 0,
-    explanation:
-      "Actor 的核心价值是有状态和长期驻留。比如模型加载一次后反复服务请求，就很适合 Actor。",
-  },
-  {
-    lessonId: "resource",
-    type: "工程题",
-    skill: "工程",
-    text: "下面哪种写法更容易破坏 Ray 的并行度？",
-    options: [
-      "先提交一批 remote 调用，再统一 ray.get",
-      "在循环里每提交一个 remote 就立刻 ray.get",
-      "用 ObjectRef 作为下游任务输入",
-      "给 GPU 任务声明 num_gpus=1",
-    ],
-    answer: 1,
-    explanation:
-      "每次提交后立刻 get 会阻塞 Driver，让任务近似串行执行。Ray 程序通常应先制造足够并行度。",
-  },
-  {
-    lessonId: "architecture",
-    type: "判断题",
-    skill: "架构",
-    text: "Object Store 的一个重要作用，是让大对象在多个 Worker 之间更高效地共享。",
-    options: ["正确", "错误"],
-    answer: 0,
-    explanation:
-      "正确。Object Store 是 Ray 高效传递大对象的关键机制，配合 ObjectRef 使用。",
-  },
-  {
-    lessonId: "resource",
-    type: "场景题",
-    skill: "工程",
-    text: "一个任务需要 1 张 GPU，最合理的做法是什么？",
-    options: ["在函数里手写选择机器 IP", "用 @ray.remote(num_gpus=1) 声明资源需求", "让所有 Worker 都同时抢 GPU", "必须把任务改成 Actor 才能用 GPU"],
-    answer: 1,
-    explanation:
-      "Ray 的资源感知调度依赖任务或 Actor 的资源声明。声明 num_gpus=1 后，调度器会寻找可用 GPU 资源。",
-  },
+const topicRegistry = [
+  { id: "ray", path: "./data/ray.json" },
+  { id: "vllm", path: "./data/vllm.json" },
 ];
 
 const state = {
+  topics: [],
+  topic: null,
+  topicIndex: 0,
   lessonIndex: 0,
   view: "learn",
   questionIndex: 0,
@@ -162,11 +15,11 @@ const state = {
   mistakes: [],
 };
 
-const storageKey = "tech-tutor-ray-progress";
+const storagePrefix = "vibe-learner-progress";
 
 function getStorage() {
   try {
-    const testKey = `${storageKey}:test`;
+    const testKey = `${storagePrefix}:test`;
     localStorage.setItem(testKey, "1");
     localStorage.removeItem(testKey);
     return localStorage;
@@ -178,15 +31,25 @@ function getStorage() {
 const progressStorage = getStorage();
 
 const els = {
+  topicCount: document.querySelector("#topicCount"),
+  topicList: document.querySelector("#topicList"),
   lessonNav: document.querySelector("#lessonNav"),
   lessonTitle: document.querySelector("#lessonTitle"),
   lessonStep: document.querySelector("#lessonStep"),
   lessonSummary: document.querySelector("#lessonSummary"),
   conceptList: document.querySelector("#conceptList"),
   knowledgeMap: document.querySelector("#knowledgeMap"),
+  mapTopicName: document.querySelector("#mapTopicName"),
   masteryScore: document.querySelector("#masteryScore"),
   masteryFill: document.querySelector("#masteryFill"),
   progressHint: document.querySelector("#progressHint"),
+  heroEyebrow: document.querySelector("#heroEyebrow"),
+  heroTitle: document.querySelector("#heroTitle"),
+  heroBody: document.querySelector("#heroBody"),
+  heroImage: document.querySelector("#heroImage"),
+  topicPlaceholder: document.querySelector("#topicPlaceholder"),
+  placeholderMark: document.querySelector("#placeholderMark"),
+  placeholderTitle: document.querySelector("#placeholderTitle"),
   questionType: document.querySelector("#questionType"),
   questionCount: document.querySelector("#questionCount"),
   questionText: document.querySelector("#questionText"),
@@ -197,10 +60,73 @@ const els = {
   coachText: document.querySelector("#coachText"),
   skillBars: document.querySelector("#skillBars"),
   mistakeList: document.querySelector("#mistakeList"),
+  roadmapList: document.querySelector("#roadmapList"),
 };
 
+function currentLessons() {
+  return state.topic?.lessons || [];
+}
+
+function currentQuestions() {
+  return state.topic?.questions || [];
+}
+
+function storageKey(topicId = state.topic?.id) {
+  return `${storagePrefix}:${topicId || "unknown"}`;
+}
+
+async function loadTopics() {
+  const responses = await Promise.all(
+    topicRegistry.map(async (item) => {
+      const response = await fetch(item.path);
+      if (!response.ok) throw new Error(`Failed to load ${item.path}`);
+      return response.json();
+    }),
+  );
+
+  state.topics = responses;
+  const savedTopicId = progressStorage?.getItem(`${storagePrefix}:active-topic`);
+  const initialIndex = Math.max(
+    0,
+    state.topics.findIndex((topic) => topic.id === savedTopicId),
+  );
+  setTopic(initialIndex, { preserveView: true });
+}
+
+function setTopic(index, options = {}) {
+  state.topicIndex = index;
+  state.topic = state.topics[index];
+  state.lessonIndex = 0;
+  state.questionIndex = 0;
+  state.selectedOption = null;
+  state.answered = new Map();
+  state.mistakes = [];
+  state.view = options.preserveView ? state.view : "learn";
+  loadProgress();
+  progressStorage?.setItem(`${storagePrefix}:active-topic`, state.topic.id);
+  renderAll(true);
+  setView(state.view);
+}
+
+function renderTopics() {
+  els.topicCount.textContent = String(state.topics.length).padStart(2, "0");
+  els.topicList.innerHTML = state.topics
+    .map(
+      (topic, index) => `
+        <button class="topic-button ${index === state.topicIndex ? "active" : ""}" data-topic="${index}">
+          <span class="topic-code">${topic.title.slice(0, 2).toUpperCase()}</span>
+          <span>
+            <strong>${topic.title}</strong>
+            <small>${topic.subtitle}</small>
+          </span>
+        </button>
+      `,
+    )
+    .join("");
+}
+
 function renderLessons() {
-  els.lessonNav.innerHTML = lessons
+  els.lessonNav.innerHTML = currentLessons()
     .map(
       (lesson, index) => `
         <button class="nav-button ${index === state.lessonIndex ? "active" : ""}" data-lesson="${index}">
@@ -212,11 +138,32 @@ function renderLessons() {
     .join("");
 }
 
+function renderHero() {
+  const topic = state.topic;
+  els.heroEyebrow.textContent = topic.hero?.eyebrow || topic.status;
+  els.heroTitle.textContent = topic.hero?.title || topic.description;
+  els.heroBody.textContent = topic.hero?.body || topic.description;
+
+  const hasImage = Boolean(topic.hero?.image);
+  els.heroImage.hidden = !hasImage;
+  els.topicPlaceholder.hidden = hasImage;
+  if (hasImage) {
+    els.heroImage.src = topic.hero.image;
+    els.heroImage.alt = topic.hero.imageAlt || `${topic.title} 架构图`;
+  } else {
+    els.placeholderMark.textContent = topic.title.slice(0, 2).toUpperCase();
+    els.placeholderTitle.textContent = topic.title;
+  }
+}
+
 function renderLessonContent() {
-  const lesson = lessons[state.lessonIndex];
-  els.lessonTitle.textContent = lesson.title;
+  const lesson = currentLessons()[state.lessonIndex];
+  if (!lesson) return;
+
+  els.lessonTitle.textContent = `${state.topic.title} / ${lesson.title}`;
   els.lessonStep.textContent = String(state.lessonIndex + 1).padStart(2, "0");
   els.lessonSummary.textContent = lesson.summary;
+  els.mapTopicName.textContent = state.topic.title;
   els.conceptList.innerHTML = lesson.concepts
     .map(
       (concept) => `
@@ -230,8 +177,8 @@ function renderLessonContent() {
 }
 
 function renderKnowledgeMap() {
-  const answeredLessonIds = new Set([...state.answered.keys()].map((index) => questions[index].lessonId));
-  els.knowledgeMap.innerHTML = lessons
+  const answeredLessonIds = new Set([...state.answered.keys()].map((index) => currentQuestions()[index]?.lessonId));
+  els.knowledgeMap.innerHTML = currentLessons()
     .map((lesson, index) => {
       const current = index === state.lessonIndex ? "current" : "";
       const done = answeredLessonIds.has(lesson.id) ? "done" : "";
@@ -246,10 +193,18 @@ function renderKnowledgeMap() {
 }
 
 function renderQuestion() {
-  const question = questions[state.questionIndex];
+  const question = currentQuestions()[state.questionIndex];
   state.selectedOption = null;
+  if (!question) {
+    els.questionType.textContent = "待生成";
+    els.questionCount.textContent = "0 / 0";
+    els.questionText.textContent = "这个主题还没有练习题。";
+    els.questionOptions.innerHTML = "";
+    return;
+  }
+
   els.questionType.textContent = question.type;
-  els.questionCount.textContent = `${state.questionIndex + 1} / ${questions.length}`;
+  els.questionCount.textContent = `${state.questionIndex + 1} / ${currentQuestions().length}`;
   els.questionText.textContent = question.text;
   els.questionOptions.innerHTML = question.options
     .map(
@@ -267,7 +222,8 @@ function renderQuestion() {
 
 function renderProgress() {
   const correctCount = [...state.answered.values()].filter(Boolean).length;
-  const percent = Math.round((correctCount / questions.length) * 100);
+  const questionCount = currentQuestions().length;
+  const percent = questionCount === 0 ? 0 : Math.round((correctCount / questionCount) * 100);
   els.masteryScore.textContent = `${percent}%`;
   els.masteryFill.style.width = `${percent}%`;
 
@@ -276,7 +232,7 @@ function renderProgress() {
     .map((item) => item.skill);
 
   if (state.answered.size === 0) {
-    els.progressHint.textContent = "完成练习后，这里会显示你的薄弱点。";
+    els.progressHint.textContent = `开始 ${state.topic.title} 练习后，这里会显示薄弱点。`;
   } else if (weak.length === 0) {
     els.progressHint.textContent = "目前表现不错，可以挑战综合场景题。";
   } else {
@@ -285,9 +241,9 @@ function renderProgress() {
 }
 
 function getSkillStats() {
-  const skills = [...new Set(questions.map((question) => question.skill))];
+  const skills = [...new Set(currentQuestions().map((question) => question.skill))];
   return skills.map((skill) => {
-    const skillQuestions = questions
+    const skillQuestions = currentQuestions()
       .map((question, index) => ({ question, index }))
       .filter((item) => item.question.skill === skill);
     const answered = skillQuestions.filter((item) => state.answered.has(item.index));
@@ -314,7 +270,7 @@ function renderCoach() {
     .join("");
 
   if (state.answered.size === 0) {
-    els.coachText.textContent = "先读一遍课程，再进入练习。答题后我会根据你的选择给出即时解释。";
+    els.coachText.textContent = `先读一遍 ${state.topic.title} 课程，再进入练习。答题后我会根据你的选择给出即时解释。`;
     return;
   }
 
@@ -328,7 +284,7 @@ function renderCoach() {
 
 function renderMistakes() {
   if (state.mistakes.length === 0) {
-    els.mistakeList.innerHTML = `<div class="empty-state">还没有错题。完成练习后，答错的题会自动进入这里。</div>`;
+    els.mistakeList.innerHTML = `<div class="empty-state">还没有错题。完成 ${state.topic.title} 练习后，答错的题会自动进入这里。</div>`;
     return;
   }
 
@@ -342,6 +298,12 @@ function renderMistakes() {
         </section>
       `,
     )
+    .join("");
+}
+
+function renderRoadmap() {
+  els.roadmapList.innerHTML = (state.topic.roadmap || [])
+    .map((item) => `<li>${item}</li>`)
     .join("");
 }
 
@@ -361,7 +323,7 @@ function submitAnswer() {
     return;
   }
 
-  const question = questions[state.questionIndex];
+  const question = currentQuestions()[state.questionIndex];
   const isCorrect = state.selectedOption === question.answer;
   state.answered.set(state.questionIndex, isCorrect);
 
@@ -392,6 +354,13 @@ function submitAnswer() {
 }
 
 function bindEvents() {
+  els.topicList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-topic]");
+    if (!button) return;
+    setTopic(Number(button.dataset.topic));
+    saveProgress();
+  });
+
   els.lessonNav.addEventListener("click", (event) => {
     const button = event.target.closest("[data-lesson]");
     if (!button) return;
@@ -418,9 +387,10 @@ function bindEvents() {
 
   els.submitAnswer.addEventListener("click", submitAnswer);
   els.nextQuestion.addEventListener("click", () => {
-    state.questionIndex = (state.questionIndex + 1) % questions.length;
-    const lessonId = questions[state.questionIndex].lessonId;
-    state.lessonIndex = lessons.findIndex((lesson) => lesson.id === lessonId);
+    state.questionIndex = (state.questionIndex + 1) % currentQuestions().length;
+    const lessonId = currentQuestions()[state.questionIndex]?.lessonId;
+    const nextLessonIndex = currentLessons().findIndex((lesson) => lesson.id === lessonId);
+    state.lessonIndex = nextLessonIndex >= 0 ? nextLessonIndex : state.lessonIndex;
     renderAll(true);
     setView("practice");
     saveProgress();
@@ -428,17 +398,21 @@ function bindEvents() {
 }
 
 function renderAll(includeQuestion = true) {
+  if (!state.topic) return;
+  renderTopics();
+  renderHero();
   renderLessons();
   renderLessonContent();
   renderKnowledgeMap();
   renderProgress();
   renderCoach();
   renderMistakes();
+  renderRoadmap();
   if (includeQuestion) renderQuestion();
 }
 
 function saveProgress() {
-  if (!progressStorage) return;
+  if (!progressStorage || !state.topic) return;
 
   const payload = {
     lessonIndex: state.lessonIndex,
@@ -447,13 +421,13 @@ function saveProgress() {
     answered: [...state.answered.entries()],
     mistakes: state.mistakes,
   };
-  progressStorage.setItem(storageKey, JSON.stringify(payload));
+  progressStorage.setItem(storageKey(), JSON.stringify(payload));
 }
 
 function loadProgress() {
-  if (!progressStorage) return;
+  if (!progressStorage || !state.topic) return;
 
-  const raw = progressStorage.getItem(storageKey);
+  const raw = progressStorage.getItem(storageKey());
   if (!raw) return;
 
   try {
@@ -464,11 +438,12 @@ function loadProgress() {
     state.answered = new Map(payload.answered || []);
     state.mistakes = Array.isArray(payload.mistakes) ? payload.mistakes : [];
   } catch {
-    progressStorage.removeItem(storageKey);
+    progressStorage.removeItem(storageKey());
   }
 }
 
-loadProgress();
 bindEvents();
-renderAll(true);
-setView(state.view);
+loadTopics().catch((error) => {
+  els.heroTitle.textContent = "课程数据加载失败";
+  els.heroBody.textContent = error.message;
+});

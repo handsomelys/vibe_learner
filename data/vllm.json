@@ -1,0 +1,127 @@
+{
+  "id": "vllm",
+  "title": "vLLM",
+  "subtitle": "大模型推理服务与高吞吐调度",
+  "description": "学习 vLLM 的推理服务架构、PagedAttention、KV Cache 管理、连续批处理和 OpenAI-compatible serving。",
+  "level": "进阶",
+  "status": "Draft Seed",
+  "hero": {
+    "eyebrow": "New topic seed",
+    "title": "从请求进入服务，到 token 流式吐出，拆开 vLLM 的推理流水线。",
+    "body": "这个主题先放一个轻量种子课程，用来验证多主题架构。后续 Survey Agent 会补齐官方来源、代码路径、性能实践和系统设计题。",
+    "image": "",
+    "imageAlt": "vLLM 学习主题"
+  },
+  "roadmap": [
+    "补充 vLLM 官方文档和源码来源。",
+    "加入 PagedAttention 的图解和代码阅读题。",
+    "补充 serving、batching、KV Cache 和量化相关练习。",
+    "和 Ray Serve、Kubernetes、GPU 调度主题建立知识依赖。"
+  ],
+  "lessons": [
+    {
+      "id": "serving",
+      "title": "vLLM 服务总览",
+      "summary": "vLLM 面向大模型推理服务，重点解决高吞吐、低延迟和显存利用率问题。它把用户请求组织成调度队列，再通过高效的 KV Cache 管理和批处理策略持续生成 token。",
+      "skill": "服务架构",
+      "concepts": [
+        {
+          "name": "推理服务",
+          "body": "推理服务负责接收请求、分词、调度生成、流式返回 token，并暴露 OpenAI-compatible API。"
+        },
+        {
+          "name": "吞吐与延迟",
+          "body": "大模型服务要同时考虑单请求延迟和整体吞吐。vLLM 的很多设计都围绕批处理和显存效率展开。"
+        },
+        {
+          "name": "Scheduler",
+          "body": "调度器决定哪些请求进入当前 batch，如何在 prefill 和 decode 阶段分配计算资源。"
+        }
+      ]
+    },
+    {
+      "id": "paged-attention",
+      "title": "PagedAttention 与 KV Cache",
+      "summary": "PagedAttention 把 KV Cache 管理得像分页内存，减少显存碎片，提高并发请求下的显存利用率。这是 vLLM 高吞吐的关键设计之一。",
+      "skill": "KV Cache",
+      "concepts": [
+        {
+          "name": "KV Cache",
+          "body": "自回归生成会复用历史 token 的 key/value。缓存它们可以避免每一步重新计算历史上下文。"
+        },
+        {
+          "name": "分页管理",
+          "body": "把连续 KV Cache 拆成块管理，可以减少显存浪费，让不同长度的请求更容易共存。"
+        },
+        {
+          "name": "显存利用率",
+          "body": "推理服务经常被显存而不是算力限制。更好的缓存管理能让同一张 GPU 承载更多并发。"
+        }
+      ]
+    },
+    {
+      "id": "batching",
+      "title": "连续批处理",
+      "summary": "传统 batch 往往等待一批请求一起开始一起结束。连续批处理允许请求动态进入和离开 batch，让 GPU 在 decode 阶段保持更高利用率。",
+      "skill": "调度",
+      "concepts": [
+        {
+          "name": "Prefill",
+          "body": "Prefill 阶段处理输入 prompt，通常计算密集。长 prompt 会显著占用算力和 KV Cache。"
+        },
+        {
+          "name": "Decode",
+          "body": "Decode 阶段逐 token 生成，单步计算较小但循环很多，适合通过连续批处理提升 GPU 利用率。"
+        },
+        {
+          "name": "动态 batch",
+          "body": "请求完成后可以离开 batch，新请求可以加入 batch，服务不必等待整批请求同步结束。"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "lessonId": "serving",
+      "type": "单选题",
+      "skill": "服务架构",
+      "text": "vLLM 最核心的应用场景是什么？",
+      "options": ["训练 CNN 图像模型", "构建高吞吐大模型推理服务", "替代 Python 包管理器", "做浏览器端 UI 渲染"],
+      "answer": 1,
+      "explanation": "vLLM 主要面向 LLM inference serving，重点提升大模型推理吞吐、显存利用率和服务接口能力。"
+    },
+    {
+      "lessonId": "paged-attention",
+      "type": "单选题",
+      "skill": "KV Cache",
+      "text": "KV Cache 的主要作用是什么？",
+      "options": ["缓存历史 token 的 key/value，避免重复计算", "保存用户登录态", "记录 CSS 样式", "把 GPU 变成磁盘"],
+      "answer": 0,
+      "explanation": "自回归生成每一步都需要参考历史上下文。KV Cache 复用历史 key/value，可以减少重复计算。"
+    },
+    {
+      "lessonId": "paged-attention",
+      "type": "判断题",
+      "skill": "KV Cache",
+      "text": "PagedAttention 的思想之一，是用类似分页的方式管理 KV Cache，从而降低显存碎片和浪费。",
+      "options": ["正确", "错误"],
+      "answer": 0,
+      "explanation": "正确。PagedAttention 把 KV Cache 拆成块来管理，提升不同长度请求并发时的显存利用率。"
+    },
+    {
+      "lessonId": "batching",
+      "type": "场景题",
+      "skill": "调度",
+      "text": "连续批处理相比固定 batch 的优势更接近哪一项？",
+      "options": ["所有请求必须同时开始同时结束", "请求可以动态进入和离开 batch，提高 GPU 利用率", "完全不需要 KV Cache", "只能处理单个用户请求"],
+      "answer": 1,
+      "explanation": "连续批处理允许完成的请求离开、新请求加入，让 decode 阶段的 GPU 更持续地被填满。"
+    }
+  ],
+  "sources": [
+    {
+      "label": "vLLM Docs",
+      "url": "https://docs.vllm.ai/"
+    }
+  ]
+}

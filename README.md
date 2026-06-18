@@ -1,13 +1,15 @@
 # Vibe Learner
 
-Vibe Learner 是一个面向技术学习的交互式学习应用原型。当前版本以 Ray 为主题，展示“课程讲解 + 知识地图 + 互动练习 + 即时反馈 + 错题复盘”的完整学习闭环。
+Vibe Learner 是一个面向技术学习的交互式学习应用原型。当前版本已经从 Ray 单主题 demo 扩展为多主题学习骨架，展示“主题库 + 课程讲解 + 知识地图 + 互动练习 + 即时反馈 + 错题复盘”的完整学习闭环。
 
 这个项目的长期目标是把 AI agent 的调研能力和教学编排能力结合起来：先 survey 一个技术主题，再自动生成课程结构、讲解内容、练习题、答案解析和复盘建议。
 
 ## 当前功能
 
+- Topic Hub 多主题入口
 - Ray Core 架构讲解
-- Ray 架构图展示
+- vLLM 种子课程
+- 主题级课程数据
 - 章节式知识地图
 - 互动练习题
 - 正确答案与解析
@@ -54,6 +56,9 @@ PORT=8080 ./scripts/start.sh
 ├── index.html
 ├── styles.css
 ├── app.js
+├── data/
+│   ├── ray.json
+│   └── vllm.json
 ├── assets/
 │   └── ray-architecture.png
 ├── scripts/
@@ -66,15 +71,15 @@ PORT=8080 ./scripts/start.sh
 
 ## 开发方式
 
-当前是零依赖静态应用，适合快速迭代产品形态。主要逻辑都在 `app.js`：
+当前是零依赖静态应用，适合快速迭代产品形态。课程内容已经放在 `data/*.json`，主要渲染和交互逻辑在 `app.js`：
 
-- `lessons`：课程内容
-- `questions`：练习题与答案解析
+- `data/*.json`：主题、课程、练习题、答案解析和路线图
+- `topicRegistry`：主题注册表
 - `state`：当前学习状态
 - 渲染函数：课程、题目、进度、错题本
-- 本地存储：保存学习进度
+- 本地存储：按主题保存学习进度
 
-后续可以把 `lessons` 和 `questions` 抽成 JSON，由 Survey Agent 或 Course Builder Agent 自动生成。
+后续 Survey Agent 或 Course Builder Agent 只要输出同样结构的 JSON，就能接入 Topic Hub。
 
 ## GitHub 维护
 

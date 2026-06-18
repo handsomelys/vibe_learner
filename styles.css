@@ -99,6 +99,74 @@ h1 {
   gap: 8px;
 }
 
+.topic-panel {
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-heading.compact {
+  margin-bottom: 10px;
+}
+
+.topic-list {
+  display: grid;
+  gap: 8px;
+}
+
+.topic-button {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 62px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+}
+
+.topic-button:hover,
+.topic-button.active {
+  border-color: #9fc5ff;
+  background: var(--accent-soft);
+}
+
+.topic-code {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.topic-button.active .topic-code {
+  background: var(--accent);
+}
+
+.topic-button strong,
+.topic-button small {
+  display: block;
+}
+
+.topic-button strong {
+  margin-bottom: 3px;
+  font-size: 14px;
+}
+
+.topic-button small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .nav-button {
   display: grid;
   grid-template-columns: 30px 1fr;
@@ -267,6 +335,34 @@ h1 {
   height: 100%;
   min-height: 280px;
   object-fit: cover;
+}
+
+.topic-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 280px;
+  height: 100%;
+  padding: 28px;
+  background:
+    linear-gradient(135deg, rgba(20, 107, 223, 0.08), rgba(22, 135, 99, 0.12)),
+    #f8fbff;
+}
+
+.topic-placeholder span {
+  display: grid;
+  place-items: center;
+  width: 86px;
+  height: 86px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.topic-placeholder strong {
+  margin-top: 16px;
+  font-size: 24px;
 }
 
 .view {
@@ -555,6 +651,10 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .topic-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .hero-band,
   .content-grid,
   .practice-layout,
@@ -574,7 +674,8 @@ h1 {
   }
 
   .mode-switch,
-  .lesson-nav {
+  .lesson-nav,
+  .topic-list {
     grid-template-columns: 1fr;
   }
 
