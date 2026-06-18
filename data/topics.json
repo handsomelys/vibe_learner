@@ -1,0 +1,10 @@
+[
+  {
+    "id": "ray",
+    "path": "./data/ray.json"
+  },
+  {
+    "id": "vllm",
+    "path": "./data/vllm.json"
+  }
+]

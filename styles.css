@@ -210,9 +210,27 @@ h1 {
 }
 
 .nav-title {
+  display: block;
   font-size: 14px;
   font-weight: 760;
   line-height: 1.25;
+}
+
+.nav-status {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.2;
+}
+
+.nav-button.completed .nav-status {
+  color: var(--green);
+}
+
+.nav-button.started .nav-status {
+  color: var(--warn);
 }
 
 .progress-panel {
@@ -250,6 +268,24 @@ h1 {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.reset-button {
+  width: 100%;
+  min-height: 36px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 780;
+}
+
+.reset-button:hover {
+  color: var(--ink);
+  border-color: #9fc5ff;
+  background: var(--accent-soft);
 }
 
 .workspace {
@@ -541,11 +577,22 @@ h1 {
   background: var(--green);
 }
 
+.status-dot.started {
+  background: var(--warn);
+}
+
 .question-panel h3 {
-  min-height: 72px;
-  margin-bottom: 16px;
+  min-height: 56px;
+  margin-bottom: 8px;
   font-size: 22px;
   line-height: 1.45;
+}
+
+.question-help {
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .option-list {

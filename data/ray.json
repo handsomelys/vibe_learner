@@ -154,6 +154,15 @@
       "options": ["在函数里手写选择机器 IP", "用 @ray.remote(num_gpus=1) 声明资源需求", "让所有 Worker 都同时抢 GPU", "必须把任务改成 Actor 才能用 GPU"],
       "answer": 1,
       "explanation": "Ray 的资源感知调度依赖任务或 Actor 的资源声明。声明 num_gpus=1 后，调度器会寻找可用 GPU 资源。"
+    },
+    {
+      "lessonId": "architecture",
+      "type": "多选题",
+      "skill": "架构",
+      "text": "下面哪些是 Ray Core 学习里需要重点理解的组件或概念？",
+      "options": ["Task", "Actor", "ObjectRef", "CSS Flexbox"],
+      "answer": [0, 1, 2],
+      "explanation": "Task、Actor 和 ObjectRef 是 Ray Core 的核心抽象。CSS Flexbox 是前端布局概念，不属于 Ray Core。"
     }
   ],
   "sources": [

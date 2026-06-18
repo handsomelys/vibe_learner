@@ -272,20 +272,21 @@ Interactive Tutor 负责追问和解释。
 - Ray 课程数据
 - vLLM 种子课程数据
 - Topic Hub
+- 外置主题注册表
 - JSON 课程内容
 - 静态题库数据
 - 答题反馈
 - 错题本
 - 本地进度保存
+- 当前主题进度重置
+- 章节完成状态
+- 多选题支持
 - 一键启动
 
 ### MVP+ 应补齐
 
-- 将主题注册表外置
-- 增加重置进度
-- 增加多选题支持
+- 增加填空题、代码阅读题和 debug 题
 - 增加代码阅读题样式
-- 增加章节完成状态
 - 补充 Ray 题库到 30-50 题
 - 增加课程来源字段
 
@@ -420,9 +421,8 @@ Interactive Tutor 负责追问和解释。
 
 下一步建议按这个顺序推进：
 
-1. 将主题注册表外置为 `data/topics.json`
-2. 增加 30-50 道 Ray 练习题和 20 道 vLLM 种子题
-3. 增加重置进度和章节完成状态
-4. 定义课程 schema
-5. 做 Survey Agent 的离线原型
-6. 迁移到 Vite + React + TypeScript
+1. 增加 30-50 道 Ray 练习题和 20 道 vLLM 种子题
+2. 增加填空题、代码阅读题和 debug 题
+3. 定义课程 schema
+4. 做 Survey Agent 的离线原型
+5. 迁移到 Vite + React + TypeScript

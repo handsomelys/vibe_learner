@@ -116,6 +116,15 @@
       "options": ["所有请求必须同时开始同时结束", "请求可以动态进入和离开 batch，提高 GPU 利用率", "完全不需要 KV Cache", "只能处理单个用户请求"],
       "answer": 1,
       "explanation": "连续批处理允许完成的请求离开、新请求加入，让 decode 阶段的 GPU 更持续地被填满。"
+    },
+    {
+      "lessonId": "serving",
+      "type": "多选题",
+      "skill": "服务架构",
+      "text": "一个 vLLM 在线推理服务通常需要关注哪些目标？",
+      "options": ["吞吐", "延迟", "显存利用率", "浏览器 CSS 兼容性"],
+      "answer": [0, 1, 2],
+      "explanation": "vLLM 服务重点关注吞吐、延迟和显存利用率。CSS 兼容性不是推理服务核心目标。"
     }
   ],
   "sources": [

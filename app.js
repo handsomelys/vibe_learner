@@ -1,8 +1,3 @@
-const topicRegistry = [
-  { id: "ray", path: "./data/ray.json" },
-  { id: "vllm", path: "./data/vllm.json" },
-];
-
 const state = {
   topics: [],
   topic: null,
@@ -10,7 +5,7 @@ const state = {
   lessonIndex: 0,
   view: "learn",
   questionIndex: 0,
-  selectedOption: null,
+  selectedOptions: new Set(),
   answered: new Map(),
   mistakes: [],
 };
@@ -57,6 +52,7 @@ const els = {
   questionType: document.querySelector("#questionType"),
   questionCount: document.querySelector("#questionCount"),
   questionText: document.querySelector("#questionText"),
+  questionHelp: document.querySelector("#questionHelp"),
   questionOptions: document.querySelector("#questionOptions"),
   submitAnswer: document.querySelector("#submitAnswer"),
   nextQuestion: document.querySelector("#nextQuestion"),
@@ -65,6 +61,7 @@ const els = {
   skillBars: document.querySelector("#skillBars"),
   mistakeList: document.querySelector("#mistakeList"),
   roadmapList: document.querySelector("#roadmapList"),
+  resetProgress: document.querySelector("#resetProgress"),
 };
 
 function currentLessons() {
@@ -80,6 +77,9 @@ function storageKey(topicId = state.topic?.id) {
 }
 
 async function loadTopics() {
+  const registryResponse = await fetch("./data/topics.json");
+  if (!registryResponse.ok) throw new Error("Failed to load ./data/topics.json");
+  const topicRegistry = await registryResponse.json();
   const responses = await Promise.all(
     topicRegistry.map(async (item) => {
       const response = await fetch(item.path);
@@ -102,7 +102,7 @@ function setTopic(index, options = {}) {
   state.topic = state.topics[index];
   state.lessonIndex = 0;
   state.questionIndex = 0;
-  state.selectedOption = null;
+  state.selectedOptions = new Set();
   state.answered = new Map();
   state.mistakes = [];
   state.view = options.preserveView ? state.view : "learn";
@@ -131,14 +131,18 @@ function renderTopics() {
 
 function renderLessons() {
   els.lessonNav.innerHTML = currentLessons()
-    .map(
-      (lesson, index) => `
-        <button class="nav-button ${index === state.lessonIndex ? "active" : ""}" data-lesson="${index}">
+    .map((lesson, index) => {
+      const status = getLessonStatus(lesson.id);
+      return `
+        <button class="nav-button ${index === state.lessonIndex ? "active" : ""} ${status.className}" data-lesson="${index}">
           <span class="nav-index">${String(index + 1).padStart(2, "0")}</span>
-          <span class="nav-title">${lesson.title}</span>
+          <span>
+            <span class="nav-title">${lesson.title}</span>
+            <span class="nav-status">${status.label}</span>
+          </span>
         </button>
-      `,
-    )
+      `;
+    })
     .join("");
 }
 
@@ -183,15 +187,14 @@ function renderLessonContent() {
 }
 
 function renderKnowledgeMap() {
-  const answeredLessonIds = new Set([...state.answered.keys()].map((index) => currentQuestions()[index]?.lessonId));
   els.knowledgeMap.innerHTML = currentLessons()
     .map((lesson, index) => {
       const current = index === state.lessonIndex ? "current" : "";
-      const done = answeredLessonIds.has(lesson.id) ? "done" : "";
+      const status = getLessonStatus(lesson.id);
       return `
         <div class="map-node ${current}">
           <span>${lesson.title}</span>
-          <span class="status-dot ${done}" aria-label="${done ? "已练习" : "未练习"}"></span>
+          <span class="status-dot ${status.dot}" aria-label="${status.label}"></span>
         </div>
       `;
     })
@@ -200,11 +203,12 @@ function renderKnowledgeMap() {
 
 function renderQuestion() {
   const question = currentQuestions()[state.questionIndex];
-  state.selectedOption = null;
+  state.selectedOptions = new Set();
   if (!question) {
     els.questionType.textContent = "待生成";
     els.questionCount.textContent = "0 / 0";
     els.questionText.textContent = "这个主题还没有练习题。";
+    els.questionHelp.textContent = "";
     els.questionOptions.innerHTML = "";
     return;
   }
@@ -212,6 +216,7 @@ function renderQuestion() {
   els.questionType.textContent = question.type;
   els.questionCount.textContent = `${state.questionIndex + 1} / ${currentQuestions().length}`;
   els.questionText.textContent = question.text;
+  els.questionHelp.textContent = isMultiAnswer(question) ? "多选题：可以选择多个答案。" : "选择一个答案。";
   els.questionOptions.innerHTML = question.options
     .map(
       (option, index) => `
@@ -224,6 +229,45 @@ function renderQuestion() {
     .join("");
   els.answerFeedback.className = "feedback";
   els.answerFeedback.textContent = "";
+}
+
+function isMultiAnswer(question) {
+  return Array.isArray(question.answer);
+}
+
+function getCorrectAnswers(question) {
+  return isMultiAnswer(question) ? question.answer : [question.answer];
+}
+
+function isSelectionCorrect(question) {
+  const selected = [...state.selectedOptions].sort((a, b) => a - b);
+  const correct = getCorrectAnswers(question).sort((a, b) => a - b);
+  return selected.length === correct.length && selected.every((value, index) => value === correct[index]);
+}
+
+function getCorrectAnswerText(question) {
+  return getCorrectAnswers(question)
+    .map((index) => question.options[index])
+    .join("、");
+}
+
+function getLessonStatus(lessonId) {
+  const lessonQuestions = currentQuestions()
+    .map((question, index) => ({ question, index }))
+    .filter((item) => item.question.lessonId === lessonId);
+  const answered = lessonQuestions.filter((item) => state.answered.has(item.index));
+  const correct = answered.filter((item) => state.answered.get(item.index)).length;
+
+  if (lessonQuestions.length === 0) {
+    return { label: "暂无练习", className: "pending", dot: "" };
+  }
+  if (correct === lessonQuestions.length) {
+    return { label: "已掌握", className: "completed", dot: "done" };
+  }
+  if (answered.length > 0) {
+    return { label: `${correct}/${lessonQuestions.length} 正确`, className: "started", dot: "started" };
+  }
+  return { label: `${lessonQuestions.length} 题待练`, className: "pending", dot: "" };
 }
 
 function renderProgress() {
@@ -343,14 +387,14 @@ function closeLightbox() {
 }
 
 function submitAnswer() {
-  if (state.selectedOption === null) {
+  if (state.selectedOptions.size === 0) {
     els.answerFeedback.className = "feedback show wrong";
-    els.answerFeedback.textContent = "先选择一个答案，再提交。";
+    els.answerFeedback.textContent = "先选择答案，再提交。";
     return;
   }
 
   const question = currentQuestions()[state.questionIndex];
-  const isCorrect = state.selectedOption === question.answer;
+  const isCorrect = isSelectionCorrect(question);
   state.answered.set(state.questionIndex, isCorrect);
 
   const existingMistakeIndex = state.mistakes.findIndex((item) => item.questionIndex === state.questionIndex);
@@ -362,7 +406,7 @@ function submitAnswer() {
       questionIndex: state.questionIndex,
       skill: question.skill,
       text: question.text,
-      correctAnswer: question.options[question.answer],
+      correctAnswer: getCorrectAnswerText(question),
       explanation: question.explanation,
     });
   }
@@ -370,11 +414,12 @@ function submitAnswer() {
   els.answerFeedback.className = `feedback show ${isCorrect ? "correct" : "wrong"}`;
   els.answerFeedback.textContent = isCorrect
     ? `答对了。${question.explanation}`
-    : `这题还差一点。正确答案是「${question.options[question.answer]}」。${question.explanation}`;
+    : `这题还差一点。正确答案是「${getCorrectAnswerText(question)}」。${question.explanation}`;
 
   renderProgress();
   renderCoach();
   renderMistakes();
+  renderLessons();
   renderKnowledgeMap();
   saveProgress();
 }
@@ -416,11 +461,23 @@ function bindEvents() {
   els.questionOptions.addEventListener("click", (event) => {
     const button = event.target.closest("[data-option]");
     if (!button) return;
-    state.selectedOption = Number(button.dataset.option);
+    const optionIndex = Number(button.dataset.option);
+    const question = currentQuestions()[state.questionIndex];
+    if (isMultiAnswer(question)) {
+      if (state.selectedOptions.has(optionIndex)) {
+        state.selectedOptions.delete(optionIndex);
+      } else {
+        state.selectedOptions.add(optionIndex);
+      }
+    } else {
+      state.selectedOptions = new Set([optionIndex]);
+    }
     document.querySelectorAll(".option-button").forEach((optionButton) => {
-      optionButton.classList.toggle("selected", optionButton === button);
+      optionButton.classList.toggle("selected", state.selectedOptions.has(Number(optionButton.dataset.option)));
     });
   });
+
+  els.resetProgress.addEventListener("click", resetProgress);
 
   els.submitAnswer.addEventListener("click", submitAnswer);
   els.nextQuestion.addEventListener("click", () => {
@@ -432,6 +489,18 @@ function bindEvents() {
     setView("practice");
     saveProgress();
   });
+}
+
+function resetProgress() {
+  if (!state.topic) return;
+  state.lessonIndex = 0;
+  state.questionIndex = 0;
+  state.selectedOptions = new Set();
+  state.answered = new Map();
+  state.mistakes = [];
+  progressStorage?.removeItem(storageKey());
+  renderAll(true);
+  setView("learn");
 }
 
 function renderAll(includeQuestion = true) {
