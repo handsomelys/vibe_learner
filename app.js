@@ -64,6 +64,8 @@ const els = {
   skillBars: document.querySelector("#skillBars"),
   mistakeList: document.querySelector("#mistakeList"),
   roadmapList: document.querySelector("#roadmapList"),
+  sourceCount: document.querySelector("#sourceCount"),
+  sourceList: document.querySelector("#sourceList"),
   resetProgress: document.querySelector("#resetProgress"),
 };
 
@@ -397,6 +399,26 @@ function renderRoadmap() {
     .join("");
 }
 
+function renderSources() {
+  const sources = state.topic.sources || [];
+  els.sourceCount.textContent = String(sources.length).padStart(2, "0");
+  if (sources.length === 0) {
+    els.sourceList.innerHTML = `<div class="empty-source">等待 Survey Agent 补充来源。</div>`;
+    return;
+  }
+
+  els.sourceList.innerHTML = sources
+    .map(
+      (source) => `
+        <a class="source-link" href="${source.url}" target="_blank" rel="noreferrer">
+          <span>${source.label}</span>
+          <small>${source.note || source.url}</small>
+        </a>
+      `,
+    )
+    .join("");
+}
+
 function setView(view) {
   state.view = view;
   document.querySelectorAll(".mode-button").forEach((button) => {
@@ -564,6 +586,7 @@ function renderAll(includeQuestion = true) {
   renderCoach();
   renderMistakes();
   renderRoadmap();
+  renderSources();
   if (includeQuestion) renderQuestion();
 }
 

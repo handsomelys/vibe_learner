@@ -200,7 +200,8 @@
   "sources": [
     {
       "label": "Ray Docs",
-      "url": "https://docs.ray.io/"
+      "url": "https://docs.ray.io/",
+      "note": "官方文档入口，后续 Survey Agent 会细化到具体章节。"
     }
   ]
 }

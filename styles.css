@@ -802,6 +802,49 @@ h1 {
   line-height: 1.75;
 }
 
+.source-block {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.source-list {
+  display: grid;
+  gap: 10px;
+}
+
+.source-link {
+  display: block;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.source-link:hover {
+  border-color: #9fc5ff;
+  background: var(--accent-soft);
+}
+
+.source-link span,
+.source-link small {
+  display: block;
+}
+
+.source-link span {
+  margin-bottom: 4px;
+  font-weight: 820;
+}
+
+.source-link small,
+.empty-source {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 @media (max-width: 980px) {
   .app-shell {
     grid-template-columns: 1fr;

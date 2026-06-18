@@ -162,7 +162,8 @@
   "sources": [
     {
       "label": "vLLM Docs",
-      "url": "https://docs.vllm.ai/"
+      "url": "https://docs.vllm.ai/",
+      "note": "官方文档入口，后续 Survey Agent 会细化到 serving、PagedAttention 和 scheduling。"
     }
   ]
 }

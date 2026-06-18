@@ -92,7 +92,8 @@
         "required": ["label", "url"],
         "properties": {
           "label": { "type": "string" },
-          "url": { "type": "string" }
+          "url": { "type": "string" },
+          "note": { "type": "string" }
         }
       }
     }
