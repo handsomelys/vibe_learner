@@ -1,0 +1,9 @@
+{
+  "name": "vibe-learner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive technical learning app prototype, starting with Ray.",
+  "scripts": {
+    "start": "./scripts/start.sh"
+  }
+}

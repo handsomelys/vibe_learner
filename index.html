@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tech Tutor Lab - Ray</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="学习导航">
+        <div class="brand-block">
+          <div class="brand-mark">R</div>
+          <div>
+            <p class="eyebrow">Tech Tutor Lab</p>
+            <h1>Ray 学习舱</h1>
+          </div>
+        </div>
+
+        <nav class="lesson-nav" id="lessonNav" aria-label="课程章节"></nav>
+
+        <section class="progress-panel" aria-label="学习进度">
+          <div class="progress-heading">
+            <span>掌握度</span>
+            <strong id="masteryScore">0%</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="masteryFill"></div>
+          </div>
+          <p id="progressHint">完成练习后，这里会显示你的薄弱点。</p>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">主题路径</p>
+            <h2 id="lessonTitle">Ray Core 架构总览</h2>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="学习模式">
+            <button class="mode-button active" data-view="learn" role="tab">讲解</button>
+            <button class="mode-button" data-view="practice" role="tab">练习</button>
+            <button class="mode-button" data-view="review" role="tab">复盘</button>
+          </div>
+        </header>
+
+        <section class="hero-band" aria-label="Ray 架构学习区">
+          <div class="hero-copy">
+            <p class="eyebrow">Agent-survey ready course</p>
+            <h3>从任务提交到集群执行，把 Ray 拆成能练会的知识块。</h3>
+            <p>
+              这版先用精选课程数据驱动；以后 Survey Agent 会把官方文档、论文和示例代码整理成同样的结构，再交给 Tutor Agent 出题和追问。
+            </p>
+          </div>
+          <figure class="architecture-figure">
+            <img src="./assets/ray-architecture.png" alt="Ray 架构教学图" />
+          </figure>
+        </section>
+
+        <section class="view active" id="learnView" aria-label="课程讲解">
+          <div class="content-grid">
+            <article class="lesson-panel">
+              <div class="section-heading">
+                <span>Lesson</span>
+                <strong id="lessonStep">01</strong>
+              </div>
+              <p class="lesson-summary" id="lessonSummary"></p>
+              <div class="concept-list" id="conceptList"></div>
+            </article>
+
+            <aside class="map-panel" aria-label="知识地图">
+              <div class="section-heading">
+                <span>Knowledge Map</span>
+                <strong>Ray</strong>
+              </div>
+              <div id="knowledgeMap" class="knowledge-map"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="practiceView" aria-label="互动练习">
+          <div class="practice-layout">
+            <article class="question-panel">
+              <div class="question-meta">
+                <span id="questionType">单选题</span>
+                <span id="questionCount">1 / 1</span>
+              </div>
+              <h3 id="questionText"></h3>
+              <div id="questionOptions" class="option-list"></div>
+              <div class="answer-actions">
+                <button id="submitAnswer" class="primary-action">提交答案</button>
+                <button id="nextQuestion" class="secondary-action">下一题</button>
+              </div>
+              <div id="answerFeedback" class="feedback" aria-live="polite"></div>
+            </article>
+
+            <aside class="coach-panel" aria-label="学习教练">
+              <div class="section-heading">
+                <span>Tutor</span>
+                <strong>即时反馈</strong>
+              </div>
+              <p id="coachText">
+                先读一遍左侧课程，再进入练习。答错不是问题，系统会把错题收进复盘区。
+              </p>
+              <div class="skill-bars" id="skillBars"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="reviewView" aria-label="复盘">
+          <div class="review-layout">
+            <article class="review-panel">
+              <div class="section-heading">
+                <span>Review</span>
+                <strong>错题本</strong>
+              </div>
+              <div id="mistakeList" class="mistake-list"></div>
+            </article>
+            <aside class="survey-panel">
+              <div class="section-heading">
+                <span>Roadmap</span>
+                <strong>下一步开发</strong>
+              </div>
+              <ol class="roadmap-list">
+                <li>接入 Survey Agent，自动抓取和归纳技术主题。</li>
+                <li>把课程大纲、题库、答案解析保存成可版本化数据。</li>
+                <li>加入自由问答和追问，把学习者的回答转成掌握度。</li>
+                <li>支持更多主题：vLLM、Kubernetes、CUDA、Transformer。</li>
+              </ol>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
