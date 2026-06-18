@@ -109,4 +109,4 @@ Vibe Learner 不只是“AI 问答”，而是一个可持续扩展的 AI 教学
 - 自动维护错题本和薄弱点
 - 最终形成像上学一样的学习路径
 
-详细计划见 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)。
+详细产品设计见 [PRD.md](./PRD.md)，开发计划见 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)。
