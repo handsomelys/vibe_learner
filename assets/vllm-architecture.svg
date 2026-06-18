@@ -1,0 +1,58 @@
+<svg width="1200" height="680" viewBox="0 0 1200 680" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="680" rx="24" fill="#F8FBFF"/>
+  <rect x="28" y="28" width="1144" height="624" rx="18" fill="white" stroke="#D9E1EC" stroke-width="2"/>
+  <text x="58" y="82" fill="#18202F" font-family="Arial, sans-serif" font-size="34" font-weight="800">vLLM 推理服务架构</text>
+  <text x="58" y="120" fill="#637083" font-family="Arial, sans-serif" font-size="18">请求进入服务后，经过调度、PagedAttention/KV Cache 管理，再由 GPU Worker 流式生成 token。</text>
+
+  <rect x="58" y="170" width="170" height="100" rx="12" fill="#E6F0FF" stroke="#9FC5FF" stroke-width="2"/>
+  <text x="92" y="210" fill="#18202F" font-family="Arial, sans-serif" font-size="20" font-weight="800">客户端</text>
+  <text x="84" y="240" fill="#637083" font-family="Arial, sans-serif" font-size="15">Chat / API 请求</text>
+
+  <rect x="288" y="158" width="210" height="124" rx="12" fill="#F4F7FB" stroke="#D9E1EC" stroke-width="2"/>
+  <text x="324" y="198" fill="#18202F" font-family="Arial, sans-serif" font-size="20" font-weight="800">OpenAI API Server</text>
+  <text x="322" y="230" fill="#637083" font-family="Arial, sans-serif" font-size="15">鉴权、路由、流式响应</text>
+  <text x="322" y="255" fill="#637083" font-family="Arial, sans-serif" font-size="15">/v1/chat/completions</text>
+
+  <rect x="558" y="138" width="248" height="164" rx="12" fill="#E4F7EF" stroke="#9EDDC5" stroke-width="2"/>
+  <text x="610" y="184" fill="#18202F" font-family="Arial, sans-serif" font-size="22" font-weight="800">vLLM Scheduler</text>
+  <text x="606" y="218" fill="#637083" font-family="Arial, sans-serif" font-size="15">请求队列</text>
+  <text x="606" y="246" fill="#637083" font-family="Arial, sans-serif" font-size="15">Prefill / Decode 调度</text>
+  <text x="606" y="274" fill="#637083" font-family="Arial, sans-serif" font-size="15">连续批处理</text>
+
+  <rect x="870" y="154" width="240" height="132" rx="12" fill="#FFF0DD" stroke="#FFD29A" stroke-width="2"/>
+  <text x="910" y="198" fill="#18202F" font-family="Arial, sans-serif" font-size="22" font-weight="800">GPU Worker</text>
+  <text x="914" y="232" fill="#637083" font-family="Arial, sans-serif" font-size="15">模型执行器</text>
+  <text x="914" y="258" fill="#637083" font-family="Arial, sans-serif" font-size="15">逐 token 生成</text>
+
+  <rect x="254" y="388" width="338" height="156" rx="12" fill="#F4F7FB" stroke="#D9E1EC" stroke-width="2"/>
+  <text x="316" y="432" fill="#18202F" font-family="Arial, sans-serif" font-size="22" font-weight="800">PagedAttention</text>
+  <text x="304" y="466" fill="#637083" font-family="Arial, sans-serif" font-size="15">把 KV Cache 拆成 block 管理</text>
+  <text x="304" y="494" fill="#637083" font-family="Arial, sans-serif" font-size="15">减少显存碎片，提高并发</text>
+
+  <rect x="664" y="388" width="330" height="156" rx="12" fill="#F4F7FB" stroke="#D9E1EC" stroke-width="2"/>
+  <text x="748" y="432" fill="#18202F" font-family="Arial, sans-serif" font-size="22" font-weight="800">KV Cache Blocks</text>
+  <text x="716" y="466" fill="#637083" font-family="Arial, sans-serif" font-size="15">历史 token 的 key/value</text>
+  <text x="716" y="494" fill="#637083" font-family="Arial, sans-serif" font-size="15">供后续 decode 步骤复用</text>
+
+  <path d="M228 220H286" stroke="#146BDF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M278 210L292 220L278 230" stroke="#146BDF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M498 220H556" stroke="#146BDF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M548 210L562 220L548 230" stroke="#146BDF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M806 220H868" stroke="#146BDF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M860 210L874 220L860 230" stroke="#146BDF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M990 286C990 346 888 354 846 388" stroke="#168763" stroke-width="4" stroke-linecap="round"/>
+  <path d="M850 372L846 388L862 384" stroke="#168763" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M682 302C666 356 538 352 480 388" stroke="#168763" stroke-width="4" stroke-linecap="round"/>
+  <path d="M486 372L480 388L496 386" stroke="#168763" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M592 466H662" stroke="#B75B00" stroke-width="4" stroke-linecap="round"/>
+  <path d="M654 456L668 466L654 476" stroke="#B75B00" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="74" y="590" width="1052" height="36" rx="8" fill="#E6F0FF"/>
+  <text x="98" y="614" fill="#18202F" font-family="Arial, sans-serif" font-size="16" font-weight="700">学习抓手：</text>
+  <text x="194" y="614" fill="#637083" font-family="Arial, sans-serif" font-size="16">Prefill 处理 prompt，Decode 逐步生成 token；PagedAttention 让 KV Cache 更省显存，连续批处理让 GPU 更忙。</text>
+</svg>

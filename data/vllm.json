@@ -9,8 +9,8 @@
     "eyebrow": "New topic seed",
     "title": "从请求进入服务，到 token 流式吐出，拆开 vLLM 的推理流水线。",
     "body": "这个主题先放一个轻量种子课程，用来验证多主题架构。后续 Survey Agent 会补齐官方来源、代码路径、性能实践和系统设计题。",
-    "image": "",
-    "imageAlt": "vLLM 学习主题"
+    "image": "./assets/vllm-architecture.svg",
+    "imageAlt": "vLLM 推理服务架构图"
   },
   "roadmap": [
     "补充 vLLM 官方文档和源码来源。",

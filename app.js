@@ -156,6 +156,7 @@ function renderHero() {
     els.heroImage.src = topic.hero.image;
     els.heroImage.alt = topic.hero.imageAlt || `${topic.title} 架构图`;
   } else {
+    els.heroImage.removeAttribute("src");
     els.placeholderMark.textContent = topic.title.slice(0, 2).toUpperCase();
     els.placeholderTitle.textContent = topic.title;
   }
