@@ -125,6 +125,38 @@
       "options": ["吞吐", "延迟", "显存利用率", "浏览器 CSS 兼容性"],
       "answer": [0, 1, 2],
       "explanation": "vLLM 服务重点关注吞吐、延迟和显存利用率。CSS 兼容性不是推理服务核心目标。"
+    },
+    {
+      "lessonId": "paged-attention",
+      "kind": "fill",
+      "type": "填空题",
+      "skill": "KV Cache",
+      "text": "vLLM 中用于高效管理 KV Cache、减少显存碎片的核心机制通常被称为什么？",
+      "answerText": "PagedAttention",
+      "acceptedAnswers": ["PagedAttention", "paged attention", "分页 attention"],
+      "explanation": "PagedAttention 用类似分页的方式管理 KV Cache block，提升并发场景下的显存利用率。"
+    },
+    {
+      "lessonId": "batching",
+      "kind": "code",
+      "type": "代码阅读题",
+      "skill": "调度",
+      "text": "下面伪代码表达的是哪种服务调度思想？",
+      "code": "while server_running:\n    batch.add(new_ready_requests)\n    tokens = model.decode(batch)\n    batch.remove(finished_requests)\n    stream(tokens)",
+      "options": ["连续批处理", "同步梯度下降", "浏览器事件冒泡", "离线数据清洗"],
+      "answer": 0,
+      "explanation": "请求可以动态进入 batch，完成后离开 batch，这是连续批处理提升 decode 阶段 GPU 利用率的关键。"
+    },
+    {
+      "lessonId": "serving",
+      "kind": "debug",
+      "type": "Debug 题",
+      "skill": "服务架构",
+      "text": "服务吞吐很低且 GPU 经常空闲，最优先排查哪类问题？",
+      "code": "symptom:\n  gpu_utilization: 20%\n  request_queue: growing\n  average_decode_batch_size: 1",
+      "options": ["调度和批处理配置是否让 decode batch 太小", "CSS 字体是否加载失败", "README 是否太长", "是否使用了错误的图片格式"],
+      "answer": 0,
+      "explanation": "GPU 空闲且 decode batch size 很小，通常应优先检查请求调度、连续批处理和并发配置。"
     }
   ],
   "sources": [

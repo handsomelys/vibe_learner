@@ -281,12 +281,13 @@ Interactive Tutor 负责追问和解释。
 - 当前主题进度重置
 - 章节完成状态
 - 多选题支持
+- 填空题、代码阅读题、Debug 题
 - 一键启动
 
 ### MVP+ 应补齐
 
-- 增加填空题、代码阅读题和 debug 题
-- 增加代码阅读题样式
+- 增加开放问答题和评分 rubrics
+- 增加代码运行/沙盒校验能力
 - 补充 Ray 题库到 30-50 题
 - 增加课程来源字段
 
@@ -422,7 +423,7 @@ Interactive Tutor 负责追问和解释。
 下一步建议按这个顺序推进：
 
 1. 增加 30-50 道 Ray 练习题和 20 道 vLLM 种子题
-2. 增加填空题、代码阅读题和 debug 题
-3. 定义课程 schema
+2. 定义课程 schema
+3. 增加开放问答题和评分 rubrics
 4. 做 Survey Agent 的离线原型
 5. 迁移到 Vite + React + TypeScript

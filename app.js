@@ -52,7 +52,10 @@ const els = {
   questionType: document.querySelector("#questionType"),
   questionCount: document.querySelector("#questionCount"),
   questionText: document.querySelector("#questionText"),
+  questionCode: document.querySelector("#questionCode"),
   questionHelp: document.querySelector("#questionHelp"),
+  textAnswerWrap: document.querySelector("#textAnswerWrap"),
+  textAnswer: document.querySelector("#textAnswer"),
   questionOptions: document.querySelector("#questionOptions"),
   submitAnswer: document.querySelector("#submitAnswer"),
   nextQuestion: document.querySelector("#nextQuestion"),
@@ -208,7 +211,10 @@ function renderQuestion() {
     els.questionType.textContent = "待生成";
     els.questionCount.textContent = "0 / 0";
     els.questionText.textContent = "这个主题还没有练习题。";
+    els.questionCode.textContent = "";
+    els.questionCode.hidden = true;
     els.questionHelp.textContent = "";
+    els.textAnswerWrap.hidden = true;
     els.questionOptions.innerHTML = "";
     return;
   }
@@ -216,19 +222,37 @@ function renderQuestion() {
   els.questionType.textContent = question.type;
   els.questionCount.textContent = `${state.questionIndex + 1} / ${currentQuestions().length}`;
   els.questionText.textContent = question.text;
-  els.questionHelp.textContent = isMultiAnswer(question) ? "多选题：可以选择多个答案。" : "选择一个答案。";
-  els.questionOptions.innerHTML = question.options
-    .map(
-      (option, index) => `
-        <button class="option-button" data-option="${index}">
-          <span class="option-key">${String.fromCharCode(65 + index)}</span>
-          <span>${option}</span>
-        </button>
-      `,
-    )
-    .join("");
+  els.questionCode.textContent = question.code || "";
+  els.questionCode.hidden = !question.code;
+  els.textAnswer.value = "";
+  els.textAnswerWrap.hidden = !isTextAnswer(question);
+  els.questionHelp.textContent = getQuestionHelp(question);
+  els.questionOptions.innerHTML = isTextAnswer(question)
+    ? ""
+    : question.options
+      .map(
+        (option, index) => `
+          <button class="option-button" data-option="${index}">
+            <span class="option-key">${String.fromCharCode(65 + index)}</span>
+            <span>${option}</span>
+          </button>
+        `,
+      )
+      .join("");
   els.answerFeedback.className = "feedback";
   els.answerFeedback.textContent = "";
+}
+
+function isTextAnswer(question) {
+  return question.kind === "fill" || typeof question.answerText === "string" || Array.isArray(question.acceptedAnswers);
+}
+
+function getQuestionHelp(question) {
+  if (isTextAnswer(question)) return "填空题：输入关键答案即可，大小写不敏感。";
+  if (question.kind === "code") return "代码阅读题：先读代码，再选择最准确的答案。";
+  if (question.kind === "debug") return "Debug 题：找出问题来源或最佳修复方式。";
+  if (isMultiAnswer(question)) return "多选题：可以选择多个答案。";
+  return "选择一个答案。";
 }
 
 function isMultiAnswer(question) {
@@ -240,12 +264,27 @@ function getCorrectAnswers(question) {
 }
 
 function isSelectionCorrect(question) {
+  if (isTextAnswer(question)) return isTextAnswerCorrect(question);
   const selected = [...state.selectedOptions].sort((a, b) => a - b);
   const correct = getCorrectAnswers(question).sort((a, b) => a - b);
   return selected.length === correct.length && selected.every((value, index) => value === correct[index]);
 }
 
+function normalizeTextAnswer(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function isTextAnswerCorrect(question) {
+  const answer = normalizeTextAnswer(els.textAnswer.value);
+  const accepted = question.acceptedAnswers || [question.answerText];
+  return accepted.map(normalizeTextAnswer).includes(answer);
+}
+
 function getCorrectAnswerText(question) {
+  if (isTextAnswer(question)) return question.answerText || question.acceptedAnswers?.[0] || "";
   return getCorrectAnswers(question)
     .map((index) => question.options[index])
     .join("、");
@@ -342,6 +381,7 @@ function renderMistakes() {
     .map(
       (item) => `
         <section class="mistake-item">
+          <span class="mistake-meta">${item.type || "练习"} · ${item.skill}</span>
           <strong>${item.text}</strong>
           <p>正确答案：${item.correctAnswer}</p>
           <p>${item.explanation}</p>
@@ -387,13 +427,18 @@ function closeLightbox() {
 }
 
 function submitAnswer() {
-  if (state.selectedOptions.size === 0) {
+  const question = currentQuestions()[state.questionIndex];
+  if (!isTextAnswer(question) && state.selectedOptions.size === 0) {
     els.answerFeedback.className = "feedback show wrong";
     els.answerFeedback.textContent = "先选择答案，再提交。";
     return;
   }
+  if (isTextAnswer(question) && els.textAnswer.value.trim() === "") {
+    els.answerFeedback.className = "feedback show wrong";
+    els.answerFeedback.textContent = "先写下你的答案，再提交。";
+    return;
+  }
 
-  const question = currentQuestions()[state.questionIndex];
   const isCorrect = isSelectionCorrect(question);
   state.answered.set(state.questionIndex, isCorrect);
 
@@ -405,6 +450,7 @@ function submitAnswer() {
     state.mistakes.push({
       questionIndex: state.questionIndex,
       skill: question.skill,
+      type: question.type,
       text: question.text,
       correctAnswer: getCorrectAnswerText(question),
       explanation: question.explanation,
@@ -475,6 +521,10 @@ function bindEvents() {
     document.querySelectorAll(".option-button").forEach((optionButton) => {
       optionButton.classList.toggle("selected", state.selectedOptions.has(Number(optionButton.dataset.option)));
     });
+  });
+
+  els.textAnswer.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") submitAnswer();
   });
 
   els.resetProgress.addEventListener("click", resetProgress);
