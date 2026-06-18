@@ -47,6 +47,10 @@ const els = {
   heroTitle: document.querySelector("#heroTitle"),
   heroBody: document.querySelector("#heroBody"),
   heroImage: document.querySelector("#heroImage"),
+  imageZoomButton: document.querySelector("#imageZoomButton"),
+  imageLightbox: document.querySelector("#imageLightbox"),
+  lightboxImage: document.querySelector("#lightboxImage"),
+  lightboxClose: document.querySelector("#lightboxClose"),
   topicPlaceholder: document.querySelector("#topicPlaceholder"),
   placeholderMark: document.querySelector("#placeholderMark"),
   placeholderTitle: document.querySelector("#placeholderTitle"),
@@ -146,6 +150,7 @@ function renderHero() {
 
   const hasImage = Boolean(topic.hero?.image);
   els.heroImage.hidden = !hasImage;
+  els.imageZoomButton.hidden = !hasImage;
   els.topicPlaceholder.hidden = hasImage;
   if (hasImage) {
     els.heroImage.src = topic.hero.image;
@@ -311,9 +316,29 @@ function setView(view) {
   state.view = view;
   document.querySelectorAll(".mode-button").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === view);
+    button.setAttribute("aria-selected", String(button.dataset.view === view));
   });
   document.querySelectorAll(".view").forEach((section) => section.classList.remove("active"));
   document.querySelector(`#${view}View`).classList.add("active");
+}
+
+function focusView(view) {
+  const section = document.querySelector(`#${view}View`);
+  section?.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+function openLightbox() {
+  if (!state.topic?.hero?.image) return;
+  els.lightboxImage.src = state.topic.hero.image;
+  els.lightboxImage.alt = state.topic.hero.imageAlt || `${state.topic.title} 图片`;
+  els.imageLightbox.classList.add("active");
+  els.imageLightbox.setAttribute("aria-hidden", "false");
+  els.lightboxClose.focus();
+}
+
+function closeLightbox() {
+  els.imageLightbox.classList.remove("active");
+  els.imageLightbox.setAttribute("aria-hidden", "true");
 }
 
 function submitAnswer() {
@@ -372,8 +397,19 @@ function bindEvents() {
   document.querySelectorAll(".mode-button").forEach((button) => {
     button.addEventListener("click", () => {
       setView(button.dataset.view);
+      focusView(button.dataset.view);
       saveProgress();
     });
+  });
+
+  els.heroImage.addEventListener("click", openLightbox);
+  els.imageZoomButton.addEventListener("click", openLightbox);
+  els.lightboxClose.addEventListener("click", closeLightbox);
+  els.imageLightbox.addEventListener("click", (event) => {
+    if (event.target === els.imageLightbox) closeLightbox();
+  });
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeLightbox();
   });
 
   els.questionOptions.addEventListener("click", (event) => {

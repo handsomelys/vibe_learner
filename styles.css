@@ -322,6 +322,9 @@ h1 {
 }
 
 .architecture-figure {
+  position: relative;
+  display: grid;
+  place-items: center;
   margin: 0;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -332,9 +335,36 @@ h1 {
 .architecture-figure img {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   min-height: 280px;
-  object-fit: cover;
+  max-height: 420px;
+  object-fit: contain;
+  padding: 12px;
+  cursor: zoom-in;
+}
+
+.image-zoom-button {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(24, 32, 47, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 8px 24px rgba(25, 39, 70, 0.16);
+}
+
+.image-zoom-button:hover {
+  border-color: #9fc5ff;
+  background: #ffffff;
+}
+
+.image-zoom-button[hidden] {
+  display: none;
 }
 
 .topic-placeholder {
@@ -363,6 +393,43 @@ h1 {
 .topic-placeholder strong {
   margin-top: 16px;
   font-size: 24px;
+}
+
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  place-items: center;
+  padding: 36px;
+  background: rgba(10, 16, 28, 0.82);
+}
+
+.image-lightbox.active {
+  display: grid;
+}
+
+.image-lightbox img {
+  display: block;
+  width: min(100%, 1320px);
+  max-height: calc(100vh - 96px);
+  object-fit: contain;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .view {
@@ -680,6 +747,15 @@ h1 {
   }
 
   .hero-band {
+    padding: 16px;
+  }
+
+  .architecture-figure img {
+    min-height: 180px;
+    max-height: 320px;
+  }
+
+  .image-lightbox {
     padding: 16px;
   }
 
