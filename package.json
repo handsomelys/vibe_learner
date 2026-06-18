@@ -4,6 +4,7 @@
   "private": true,
   "description": "Interactive technical learning app prototype, starting with Ray.",
   "scripts": {
-    "start": "./scripts/start.sh"
+    "start": "./scripts/start.sh",
+    "validate": "node scripts/validate-content.mjs"
   }
 }

@@ -42,6 +42,12 @@ make start
 npm start
 ```
 
+校验课程数据：
+
+```bash
+npm run validate
+```
+
 启动后打开：
 
 ```text
@@ -65,6 +71,7 @@ PORT=8080 ./scripts/start.sh
 │   ├── topics.json
 │   ├── ray.json
 │   └── vllm.json
+├── course.schema.json
 ├── assets/
 │   └── ray-architecture.png
 ├── scripts/
@@ -81,6 +88,8 @@ PORT=8080 ./scripts/start.sh
 
 - `data/*.json`：主题、课程、练习题、答案解析和路线图
 - `data/topics.json`：主题注册表
+- `course.schema.json`：课程数据结构约定
+- `scripts/validate-content.mjs`：本地课程数据校验
 - `state`：当前学习状态
 - 渲染函数：课程、题目、进度、错题本
 - 本地存储：按主题保存学习进度

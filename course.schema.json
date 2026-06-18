@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/vibe-learner/course.schema.json",
+  "title": "Vibe Learner Course",
+  "type": "object",
+  "required": ["id", "title", "subtitle", "description", "hero", "lessons", "questions"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "subtitle": { "type": "string" },
+    "description": { "type": "string" },
+    "level": { "type": "string" },
+    "status": { "type": "string" },
+    "hero": {
+      "type": "object",
+      "required": ["title", "body"],
+      "properties": {
+        "eyebrow": { "type": "string" },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "image": { "type": "string" },
+        "imageAlt": { "type": "string" }
+      }
+    },
+    "roadmap": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "lessons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "summary", "skill", "concepts"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "skill": { "type": "string" },
+          "concepts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["name", "body"],
+              "properties": {
+                "name": { "type": "string" },
+                "body": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["lessonId", "type", "skill", "text", "explanation"],
+        "properties": {
+          "lessonId": { "type": "string" },
+          "kind": { "type": "string", "enum": ["single", "multi", "fill", "code", "debug"] },
+          "type": { "type": "string" },
+          "skill": { "type": "string" },
+          "text": { "type": "string" },
+          "code": { "type": "string" },
+          "options": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "answer": {
+            "oneOf": [
+              { "type": "integer" },
+              { "type": "array", "items": { "type": "integer" }, "minItems": 1 }
+            ]
+          },
+          "answerText": { "type": "string" },
+          "acceptedAnswers": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "explanation": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "url"],
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
+    }
+  }
+}
