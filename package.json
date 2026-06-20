@@ -5,6 +5,7 @@
   "description": "Interactive technical learning app prototype, starting with Ray.",
   "scripts": {
     "start": "./scripts/start.sh",
-    "validate": "node scripts/validate-content.mjs"
+    "validate": "node scripts/validate-content.mjs",
+    "draft": "node scripts/create-topic-draft.mjs"
   }
 }
