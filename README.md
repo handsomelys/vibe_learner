@@ -100,6 +100,7 @@ PORT=8080 ./scripts/start.sh
 - `course.schema.json`：课程数据结构约定
 - `scripts/validate-content.mjs`：本地课程数据校验
 - `scripts/create-topic-draft.mjs`：新主题草稿生成器
+- `.github/workflows/validate.yml`：推送和 PR 时自动校验课程数据
 - `state`：当前学习状态
 - 渲染函数：课程、题目、进度、错题本
 - 本地存储：按主题保存学习进度
