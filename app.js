@@ -256,10 +256,15 @@ function renderQuestionTags(question) {
 }
 
 function isTextAnswer(question) {
-  return question.kind === "fill" || typeof question.answerText === "string" || Array.isArray(question.acceptedAnswers);
+  return isOpenAnswer(question) || question.kind === "fill" || typeof question.answerText === "string" || Array.isArray(question.acceptedAnswers);
+}
+
+function isOpenAnswer(question) {
+  return question.kind === "open" && Array.isArray(question.rubric);
 }
 
 function getQuestionHelp(question) {
+  if (isOpenAnswer(question)) return "开放问答：写出你的推理，系统会按评分点给出反馈。";
   if (isTextAnswer(question)) return "填空题：输入关键答案即可，大小写不敏感。";
   if (question.kind === "code") return "代码阅读题：先读代码，再选择最准确的答案。";
   if (question.kind === "debug") return "Debug 题：找出问题来源或最佳修复方式。";
@@ -276,6 +281,7 @@ function getCorrectAnswers(question) {
 }
 
 function isSelectionCorrect(question) {
+  if (isOpenAnswer(question)) return evaluateOpenAnswer(question).isCorrect;
   if (isTextAnswer(question)) return isTextAnswerCorrect(question);
   const selected = [...state.selectedOptions].sort((a, b) => a - b);
   const correct = getCorrectAnswers(question).sort((a, b) => a - b);
@@ -290,16 +296,48 @@ function normalizeTextAnswer(value) {
 }
 
 function isTextAnswerCorrect(question) {
+  if (isOpenAnswer(question)) return evaluateOpenAnswer(question).isCorrect;
   const answer = normalizeTextAnswer(els.textAnswer.value);
   const accepted = question.acceptedAnswers || [question.answerText];
   return accepted.map(normalizeTextAnswer).includes(answer);
 }
 
 function getCorrectAnswerText(question) {
+  if (isOpenAnswer(question)) return question.sampleAnswer || "参考评分点见解析";
   if (isTextAnswer(question)) return question.answerText || question.acceptedAnswers?.[0] || "";
   return getCorrectAnswers(question)
     .map((index) => question.options[index])
     .join("、");
+}
+
+function evaluateOpenAnswer(question) {
+  const answer = normalizeTextAnswer(els.textAnswer.value);
+  const rubric = question.rubric || [];
+  const matched = rubric.filter((item) =>
+    (item.keywords || []).some((keyword) => answer.includes(normalizeTextAnswer(keyword))),
+  );
+  const missing = rubric.filter((item) => !matched.includes(item));
+  const passingScore = question.passingScore ?? Math.ceil(rubric.length * 0.6);
+  return {
+    isCorrect: matched.length >= passingScore,
+    matched,
+    missing,
+    score: matched.length,
+    total: rubric.length,
+  };
+}
+
+function getFeedbackText(question, isCorrect) {
+  if (!isOpenAnswer(question)) {
+    return isCorrect
+      ? `答对了。${question.explanation}`
+      : `这题还差一点。正确答案是「${getCorrectAnswerText(question)}」。${question.explanation}`;
+  }
+
+  const result = evaluateOpenAnswer(question);
+  const matched = result.matched.map((item) => item.point).join("、") || "暂无";
+  const missing = result.missing.map((item) => item.point).join("、") || "暂无";
+  return `${isCorrect ? "通过了" : "还可以补强"}。得分 ${result.score}/${result.total}。命中：${matched}。建议补充：${missing}。${question.explanation}`;
 }
 
 function getLessonStatus(lessonId) {
@@ -490,9 +528,7 @@ function submitAnswer() {
   }
 
   els.answerFeedback.className = `feedback show ${isCorrect ? "correct" : "wrong"}`;
-  els.answerFeedback.textContent = isCorrect
-    ? `答对了。${question.explanation}`
-    : `这题还差一点。正确答案是「${getCorrectAnswerText(question)}」。${question.explanation}`;
+  els.answerFeedback.textContent = getFeedbackText(question, isCorrect);
 
   renderProgress();
   renderCoach();

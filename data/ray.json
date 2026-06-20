@@ -207,6 +207,24 @@
       "options": ["改用 Actor，把 value 保存在远程对象实例里", "删除 @ray.remote", "把 value 改成字符串", "每次调用后 sleep 一秒"],
       "answer": 0,
       "explanation": "普通 Task 是无状态函数执行。需要跨多次调用保留 value 时，应使用 Ray Actor。"
+    },
+    {
+      "lessonId": "resource",
+      "kind": "open",
+      "type": "开放问答",
+      "skill": "工程",
+      "difficulty": "挑战",
+      "tags": ["系统设计", "资源调度", "Object Store"],
+      "text": "如果你要用 Ray 设计一个批量模型推理流水线，你会怎样组织 Task、Actor、ObjectRef 和资源声明？",
+      "sampleAnswer": "可以用 Task 做无状态的数据预处理和后处理，用 Actor 长期持有模型实例，用 ObjectRef 在阶段之间传递大对象，并用 num_gpus 或自定义资源声明推理 Actor 的资源需求。",
+      "passingScore": 3,
+      "rubric": [
+        { "point": "区分 Task 和 Actor 的职责", "keywords": ["task", "actor", "无状态", "有状态"] },
+        { "point": "提到 ObjectRef 或对象存储传递数据", "keywords": ["objectref", "object store", "对象存储", "引用"] },
+        { "point": "提到 GPU/CPU 资源声明", "keywords": ["gpu", "cpu", "num_gpus", "资源"] },
+        { "point": "提到批量提交或避免过早 ray.get", "keywords": ["批量", "ray.get", "并行", "refs"] }
+      ],
+      "explanation": "这类系统设计题关注你是否能把 Ray 的抽象组合起来，而不是只背单个 API。"
     }
   ],
   "sources": [

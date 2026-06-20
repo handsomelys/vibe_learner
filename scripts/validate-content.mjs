@@ -47,6 +47,13 @@ function validateCourse(course, sourcePath) {
     assert(lessonIds.has(question.lessonId), `${qid} references unknown lessonId: ${question.lessonId}`);
     assert(question.type && question.skill && question.text && question.explanation, `${qid} missing required fields`);
 
+    const isOpen = question.kind === "open";
+    if (isOpen) {
+      assert(Array.isArray(question.rubric) && question.rubric.length > 0, `${qid} open question needs rubric`);
+      assert(question.sampleAnswer, `${qid} open question needs sampleAnswer`);
+      continue;
+    }
+
     const isText = question.kind === "fill" || typeof question.answerText === "string" || Array.isArray(question.acceptedAnswers);
     if (isText) {
       assert(question.answerText || question.acceptedAnswers?.length, `${qid} needs answerText or acceptedAnswers`);

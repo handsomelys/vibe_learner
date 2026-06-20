@@ -640,17 +640,19 @@ h1 {
   font-weight: 760;
 }
 
-.text-answer input {
+.text-answer textarea {
   width: 100%;
   min-height: 44px;
-  padding: 0 12px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
   color: var(--ink);
+  resize: vertical;
+  line-height: 1.5;
 }
 
-.text-answer input:focus {
+.text-answer textarea:focus {
   border-color: #9fc5ff;
   outline: 3px solid rgba(20, 107, 223, 0.12);
 }

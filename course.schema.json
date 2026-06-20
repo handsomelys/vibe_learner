@@ -60,7 +60,7 @@
         "required": ["lessonId", "type", "skill", "text", "explanation"],
         "properties": {
           "lessonId": { "type": "string" },
-          "kind": { "type": "string", "enum": ["single", "multi", "fill", "code", "debug"] },
+          "kind": { "type": "string", "enum": ["single", "multi", "fill", "code", "debug", "open"] },
           "type": { "type": "string" },
           "skill": { "type": "string" },
           "difficulty": { "type": "string", "enum": ["入门", "基础", "进阶", "挑战"] },
@@ -85,6 +85,23 @@
             "type": "array",
             "items": { "type": "string" },
             "minItems": 1
+          },
+          "sampleAnswer": { "type": "string" },
+          "passingScore": { "type": "integer", "minimum": 1 },
+          "rubric": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["point", "keywords"],
+              "properties": {
+                "point": { "type": "string" },
+                "keywords": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "minItems": 1
+                }
+              }
+            }
           },
           "explanation": { "type": "string" }
         }

@@ -169,6 +169,24 @@
       "options": ["调度和批处理配置是否让 decode batch 太小", "CSS 字体是否加载失败", "README 是否太长", "是否使用了错误的图片格式"],
       "answer": 0,
       "explanation": "GPU 空闲且 decode batch size 很小，通常应优先检查请求调度、连续批处理和并发配置。"
+    },
+    {
+      "lessonId": "batching",
+      "kind": "open",
+      "type": "开放问答",
+      "skill": "调度",
+      "difficulty": "挑战",
+      "tags": ["系统设计", "连续批处理", "KV Cache"],
+      "text": "解释一下为什么 vLLM 需要同时关注连续批处理和 KV Cache 管理。",
+      "sampleAnswer": "连续批处理让请求可以动态进入和离开 decode batch，保持 GPU 利用率；KV Cache 管理降低历史上下文重复计算和显存浪费。两者一起决定吞吐、延迟和并发能力。",
+      "passingScore": 3,
+      "rubric": [
+        { "point": "说明连续批处理提升 GPU 利用率", "keywords": ["连续批处理", "batch", "gpu", "利用率"] },
+        { "point": "说明 KV Cache 复用历史上下文", "keywords": ["kv cache", "历史", "复用", "key/value"] },
+        { "point": "提到显存或碎片管理", "keywords": ["显存", "碎片", "pagedattention", "block"] },
+        { "point": "关联吞吐、延迟或并发", "keywords": ["吞吐", "延迟", "并发", "throughput"] }
+      ],
+      "explanation": "vLLM 的服务能力不是单点优化，而是调度策略和显存管理共同作用的结果。"
     }
   ],
   "sources": [
