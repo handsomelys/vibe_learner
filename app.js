@@ -35,6 +35,10 @@ const els = {
   conceptList: document.querySelector("#conceptList"),
   knowledgeMap: document.querySelector("#knowledgeMap"),
   mapTopicName: document.querySelector("#mapTopicName"),
+  goalList: document.querySelector("#goalList"),
+  goalCount: document.querySelector("#goalCount"),
+  reviewGoalList: document.querySelector("#reviewGoalList"),
+  nextActionList: document.querySelector("#nextActionList"),
   masteryScore: document.querySelector("#masteryScore"),
   masteryFill: document.querySelector("#masteryFill"),
   progressHint: document.querySelector("#progressHint"),
@@ -205,6 +209,35 @@ function renderKnowledgeMap() {
       `;
     })
     .join("");
+}
+
+function renderGoals() {
+  const goals = state.topic.goals || [];
+  const masteredLessonIds = new Set(
+    currentLessons()
+      .filter((lesson) => getLessonStatus(lesson.id).className === "completed")
+      .map((lesson) => lesson.id),
+  );
+  els.goalCount.textContent = String(goals.length).padStart(2, "0");
+
+  const html = goals
+    .map((goal) => {
+      const related = goal.lessonIds || [];
+      const complete = related.length > 0 && related.every((lessonId) => masteredLessonIds.has(lessonId));
+      const status = complete ? "已覆盖" : "学习中";
+      const className = complete ? "completed" : "";
+      return `
+        <section class="goal-item ${className}">
+          <strong>${goal.title}</strong>
+          <p>${goal.body}</p>
+          <span>${status}</span>
+        </section>
+      `;
+    })
+    .join("");
+
+  els.goalList.innerHTML = html;
+  els.reviewGoalList.innerHTML = html || `<div class="empty-source">等待补充学习目标。</div>`;
 }
 
 function renderQuestion() {
@@ -467,6 +500,25 @@ function renderSources() {
     .join("");
 }
 
+function renderNextActions() {
+  const actions = [];
+  const latestMistake = state.mistakes[state.mistakes.length - 1];
+  if (latestMistake) {
+    actions.push(`优先复习「${latestMistake.skill}」：刚才的错题暴露了这个薄弱点。`);
+  }
+
+  const firstPending = currentLessons().find((lesson) => getLessonStatus(lesson.id).className !== "completed");
+  if (firstPending) {
+    actions.push(`继续完成「${firstPending.title}」对应练习，直到章节状态变成已掌握。`);
+  }
+
+  if (actions.length === 0) {
+    actions.push("当前主题已经覆盖得不错，可以尝试开放问答或切换到下一个主题。");
+  }
+
+  els.nextActionList.innerHTML = actions.map((action) => `<div class="next-action">${action}</div>`).join("");
+}
+
 function setView(view) {
   state.view = view;
   document.querySelectorAll(".mode-button").forEach((button) => {
@@ -627,12 +679,14 @@ function renderAll(includeQuestion = true) {
   renderHero();
   renderLessons();
   renderLessonContent();
+  renderGoals();
   renderKnowledgeMap();
   renderProgress();
   renderCoach();
   renderMistakes();
   renderRoadmap();
   renderSources();
+  renderNextActions();
   if (includeQuestion) renderQuestion();
 }
 

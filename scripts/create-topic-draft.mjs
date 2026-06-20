@@ -54,6 +54,13 @@ const draft = {
     "生成题库、答案解析和评分 rubrics。",
     "人工审核后加入 data/topics.json。",
   ],
+  goals: [
+    {
+      title: `解释 ${title} 的核心问题`,
+      body: "学习者能用自己的话说明这个主题解决什么工程问题。",
+      lessonIds: ["overview"],
+    },
+  ],
   lessons: [
     {
       id: "overview",

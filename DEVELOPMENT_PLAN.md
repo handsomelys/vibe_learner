@@ -8,6 +8,7 @@
 
 - Ray 课程讲解
 - Topic Hub 多主题入口
+- 主题学习目标 Goals
 - `data/ray.json`
 - `data/vllm.json`
 - `data/topics.json`

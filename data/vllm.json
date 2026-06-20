@@ -18,6 +18,23 @@
     "补充 serving、batching、KV Cache 和量化相关练习。",
     "和 Ray Serve、Kubernetes、GPU 调度主题建立知识依赖。"
   ],
+  "goals": [
+    {
+      "title": "解释 vLLM 推理服务链路",
+      "body": "能说明请求如何进入 API Server，经过调度器和 GPU Worker 逐 token 返回。",
+      "lessonIds": ["serving"]
+    },
+    {
+      "title": "说清 PagedAttention 的价值",
+      "body": "能解释 KV Cache 为什么重要，以及分页式管理如何提升显存利用率。",
+      "lessonIds": ["paged-attention"]
+    },
+    {
+      "title": "理解连续批处理的吞吐收益",
+      "body": "能说明请求动态进入/离开 batch 如何改善 decode 阶段 GPU 利用率。",
+      "lessonIds": ["batching"]
+    }
+  ],
   "lessons": [
     {
       "id": "serving",

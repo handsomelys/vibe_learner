@@ -567,6 +567,61 @@ h1 {
   gap: 10px;
 }
 
+.goal-list,
+.review-goal-list,
+.next-action-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.goal-item {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.goal-item.completed {
+  border-color: #a8dfc7;
+  background: var(--green-soft);
+}
+
+.goal-item strong,
+.goal-item p,
+.goal-item span {
+  display: block;
+}
+
+.goal-item strong {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.goal-item p {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.goal-item span {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.next-action {
+  padding: 12px;
+  border: 1px solid #ffd29a;
+  border-radius: 8px;
+  background: var(--warn-soft);
+  color: #74400a;
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1.55;
+}
+
 .map-node {
   display: flex;
   align-items: center;

@@ -18,6 +18,28 @@
     "加入自由问答和追问，把学习者的回答转成掌握度。",
     "扩展到 Ray Data、Ray Train、Ray Serve 和 Ray Tune。"
   ],
+  "goals": [
+    {
+      "title": "说清 Ray Core 的执行链路",
+      "body": "能解释 Driver、Scheduler、Worker、Object Store 和 ObjectRef 如何配合完成一次远程调用。",
+      "lessonIds": ["architecture"]
+    },
+    {
+      "title": "写出不阻塞并行度的 Task 代码",
+      "body": "能区分 remote、ObjectRef 和 ray.get 的时机，避免把并行程序写回串行。",
+      "lessonIds": ["task"]
+    },
+    {
+      "title": "判断什么时候该用 Actor",
+      "body": "能把有状态服务、模型常驻和普通无状态 Task 区分开。",
+      "lessonIds": ["actor"]
+    },
+    {
+      "title": "设计一个资源感知的 Ray 工作流",
+      "body": "能结合 CPU/GPU 声明、批量提交和对象存储设计一个推理或数据处理流水线。",
+      "lessonIds": ["resource"]
+    }
+  ],
   "lessons": [
     {
       "id": "architecture",

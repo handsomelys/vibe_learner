@@ -42,6 +42,14 @@ function validateCourse(course, sourcePath) {
     assert(Array.isArray(lesson.concepts) && lesson.concepts.length > 0, `${prefix} lesson ${lesson.id} needs concepts`);
   }
 
+  for (const [index, goal] of (course.goals || []).entries()) {
+    const gid = `${prefix} goal ${index + 1}`;
+    assert(goal.title && goal.body, `${gid} needs title and body`);
+    for (const lessonId of goal.lessonIds || []) {
+      assert(lessonIds.has(lessonId), `${gid} references unknown lessonId: ${lessonId}`);
+    }
+  }
+
   for (const [index, question] of course.questions.entries()) {
     const qid = `${prefix} question ${index + 1}`;
     assert(lessonIds.has(question.lessonId), `${qid} references unknown lessonId: ${question.lessonId}`);

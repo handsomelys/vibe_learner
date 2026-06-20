@@ -272,6 +272,7 @@ Interactive Tutor 负责追问和解释。
 - Ray 课程数据
 - vLLM 种子课程数据
 - Topic Hub
+- 主题学习目标 Goals
 - 外置主题注册表
 - JSON 课程内容
 - 静态题库数据
