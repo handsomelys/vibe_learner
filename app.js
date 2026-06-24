@@ -13,6 +13,7 @@ const state = {
 };
 
 const storagePrefix = "vibe-learner-progress";
+const customTopicStorageKey = "vibe-learner-custom-topics";
 
 function getStorage() {
   try {
@@ -78,6 +79,10 @@ const els = {
   surveyConcepts: document.querySelector("#surveyConcepts"),
   surveyPitfalls: document.querySelector("#surveyPitfalls"),
   surveyQuestionSeeds: document.querySelector("#surveyQuestionSeeds"),
+  customTopicForm: document.querySelector("#customTopicForm"),
+  customTopicTitle: document.querySelector("#customTopicTitle"),
+  customTopicSource: document.querySelector("#customTopicSource"),
+  customTopicStatus: document.querySelector("#customTopicStatus"),
   resetProgress: document.querySelector("#resetProgress"),
 };
 
@@ -93,6 +98,42 @@ function storageKey(topicId = state.topic?.id) {
   return `${storagePrefix}:${topicId || "unknown"}`;
 }
 
+function slugify(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function cleanTitle(value) {
+  return String(value)
+    .trim()
+    .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
+    .slice(0, 48);
+}
+
+function cleanSourceUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    const url = new URL(raw);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
 async function loadTopics() {
   const registryResponse = await fetch("./data/topics.json");
   if (!registryResponse.ok) throw new Error("Failed to load ./data/topics.json");
@@ -105,14 +146,44 @@ async function loadTopics() {
     }),
   );
 
-  state.topics = responses;
-  state.surveys = await loadSurveyReports(state.topics);
+  const customBundle = loadCustomTopicBundle();
+  state.topics = [...responses, ...customBundle.topics];
+  state.surveys = await loadSurveyReports(responses);
+  for (const survey of customBundle.surveys) {
+    state.surveys.set(survey.topicId, survey);
+  }
   const savedTopicId = progressStorage?.getItem(`${storagePrefix}:active-topic`);
   const initialIndex = Math.max(
     0,
     state.topics.findIndex((topic) => topic.id === savedTopicId),
   );
   setTopic(initialIndex, { preserveView: true });
+}
+
+function loadCustomTopicBundle() {
+  if (!progressStorage) return { topics: [], surveys: [] };
+  const raw = progressStorage.getItem(customTopicStorageKey);
+  if (!raw) return { topics: [], surveys: [] };
+
+  try {
+    const payload = JSON.parse(raw);
+    return {
+      topics: Array.isArray(payload.topics) ? payload.topics : [],
+      surveys: Array.isArray(payload.surveys) ? payload.surveys : [],
+    };
+  } catch {
+    progressStorage.removeItem(customTopicStorageKey);
+    return { topics: [], surveys: [] };
+  }
+}
+
+function saveCustomTopicBundle() {
+  if (!progressStorage) return false;
+  const topics = state.topics.filter((topic) => topic.custom);
+  const topicIds = new Set(topics.map((topic) => topic.id));
+  const surveys = [...state.surveys.values()].filter((survey) => topicIds.has(survey.topicId));
+  progressStorage.setItem(customTopicStorageKey, JSON.stringify({ topics, surveys }));
+  return true;
 }
 
 function setTopic(index, options = {}) {
@@ -148,10 +219,10 @@ function renderTopics() {
     .map(
       (topic, index) => `
         <button class="topic-button ${index === state.topicIndex ? "active" : ""}" data-topic="${index}">
-          <span class="topic-code">${topic.title.slice(0, 2).toUpperCase()}</span>
+          <span class="topic-code">${escapeHtml(topic.title.slice(0, 2).toUpperCase())}</span>
           <span>
-            <strong>${topic.title}</strong>
-            <small>${topic.subtitle}</small>
+            <strong>${escapeHtml(topic.title)}</strong>
+            <small>${escapeHtml(topic.subtitle)}</small>
           </span>
         </button>
       `,
@@ -568,6 +639,184 @@ function renderSurveyReport() {
     .join("");
 }
 
+function createDraftCourse(title, id) {
+  return {
+    id,
+    title,
+    subtitle: "自定义调研主题",
+    description: `${title} 的本地调研草稿。`,
+    level: "Draft",
+    status: "Local Survey Draft",
+    custom: true,
+    hero: {
+      eyebrow: "Local survey draft",
+      title: `先调研 ${title}，再生成可学习、可练习的课程。`,
+      body: "这是浏览器本地生成的主题草稿，用来打通从输入主题到 Survey Report 的产品路径。后续可接入真正的 Survey Agent 和 Course Builder。",
+      image: "",
+      imageAlt: `${title} 学习主题`,
+    },
+    roadmap: [
+      "补充官方文档、论文、示例代码或可靠博客。",
+      "审核 Survey Report 的概念地图和常见误区。",
+      "由 Course Builder 生成章节讲解、题库和答案解析。",
+      "人工批准后发布为正式课程。",
+    ],
+    goals: [
+      {
+        title: `解释 ${title} 的核心问题`,
+        body: "能用自己的话说明这个主题解决什么工程问题，以及为什么值得学习。",
+        lessonIds: ["overview"],
+      },
+    ],
+    lessons: [
+      {
+        id: "overview",
+        title: `${title} 总览`,
+        summary: `这是 ${title} 的调研入口。先确认核心问题、关键抽象、典型场景和学习边界，再进入正式课程生成。`,
+        skill: "调研",
+        concepts: [
+          {
+            name: "核心问题",
+            body: "这个主题主要解决的工程痛点。等待 Survey Agent 或人工审核补充。",
+          },
+          {
+            name: "关键抽象",
+            body: "学习者必须掌握的核心概念、组件或算法。等待调研报告细化。",
+          },
+          {
+            name: "使用边界",
+            body: "这个主题适合哪些场景，不适合哪些场景。课程生成前需要明确。",
+          },
+        ],
+      },
+    ],
+    questions: [
+      {
+        lessonId: "overview",
+        kind: "open",
+        type: "开放问答",
+        skill: "调研",
+        difficulty: "基础",
+        tags: ["自定义主题", "Survey Draft"],
+        text: `用自己的话解释 ${title} 主要解决什么问题。`,
+        sampleAnswer: `${title} 的核心问题、关键抽象和典型场景需要在调研后完善。`,
+        passingScore: 1,
+        rubric: [
+          {
+            point: "说明主题解决的问题",
+            keywords: [title.toLowerCase(), "问题", "场景"],
+          },
+        ],
+        explanation: "这是本地生成的占位题。正式发布前应替换成基于来源的题目和评分点。",
+      },
+    ],
+    sources: [],
+  };
+}
+
+function createDraftSurvey(title, id, sourceUrl) {
+  return {
+    topicId: id,
+    title: `${title} Survey Report`,
+    version: new Date().toISOString().slice(0, 10),
+    reviewStatus: "draft",
+    summary: `${title} 的本地调研报告草稿。先收集来源，再确认核心概念、学习路径、常见误区和题目种子。`,
+    goals: [
+      `说明 ${title} 解决的核心工程问题。`,
+      `拆解 ${title} 的关键抽象和适用边界。`,
+      `整理适合练习和复盘的常见错误。`,
+    ],
+    sources: sourceUrl
+      ? [
+          {
+            label: `${title} 初始来源`,
+            url: sourceUrl,
+            type: "user-seed",
+            note: "用户输入的起始资料，等待审核和扩展。",
+          },
+        ]
+      : [],
+    conceptMap: [
+      {
+        concept: "核心问题",
+        whyItMatters: "先明确学习这个主题是为了解决什么工程痛点。",
+        dependsOn: [],
+      },
+      {
+        concept: "关键抽象",
+        whyItMatters: "把资料里的术语整理成可教学、可练习的概念块。",
+        dependsOn: ["核心问题"],
+      },
+      {
+        concept: "工程边界",
+        whyItMatters: "学习者需要知道什么时候应该使用这个技术，什么时候不该用。",
+        dependsOn: ["关键抽象"],
+      },
+    ],
+    recommendedLessons: [
+      {
+        id: "overview",
+        title: `${title} 总览`,
+        objective: `建立 ${title} 的整体心智模型。`,
+      },
+    ],
+    commonPitfalls: [
+      "只记 API 或名词，没有理解背后的系统问题。",
+      "把适用场景和不适用场景混在一起。",
+      "缺少可追溯来源，导致课程内容无法审核。",
+    ],
+    questionSeeds: [
+      {
+        lessonId: "overview",
+        kind: "open",
+        prompt: `用自己的话解释 ${title} 主要解决什么问题。`,
+        answerFocus: "回答应包含问题背景、核心抽象和一个真实使用场景。",
+      },
+    ],
+    builderNotes: [
+      "正式生成课程前，需要人工确认来源可靠性和课程边界。",
+      "题目种子应覆盖概念题、代码阅读题、场景题和开放问答。",
+    ],
+  };
+}
+
+function createCustomTopic(event) {
+  event.preventDefault();
+  const title = cleanTitle(els.customTopicTitle.value);
+  const sourceUrl = cleanSourceUrl(els.customTopicSource.value);
+  if (!title) {
+    els.customTopicStatus.textContent = "先输入一个主题名。";
+    els.customTopicTitle.focus();
+    return;
+  }
+  if (els.customTopicSource.value.trim() && !sourceUrl) {
+    els.customTopicStatus.textContent = "来源链接需要是 http 或 https 地址。";
+    els.customTopicSource.focus();
+    return;
+  }
+
+  const baseId = slugify(title) || `topic-${Date.now()}`;
+  const existingIds = new Set(state.topics.map((topic) => topic.id));
+  let id = baseId;
+  let suffix = 2;
+  while (existingIds.has(id)) {
+    id = `${baseId}-${suffix}`;
+    suffix += 1;
+  }
+
+  const topic = createDraftCourse(title, id);
+  const survey = createDraftSurvey(title, id, sourceUrl);
+  state.topics.push(topic);
+  state.surveys.set(id, survey);
+  saveCustomTopicBundle();
+  els.customTopicTitle.value = "";
+  els.customTopicSource.value = "";
+  els.customTopicStatus.textContent = `已生成 ${title} 的本地调研草稿。`;
+  setTopic(state.topics.length - 1);
+  setView("review");
+  focusView("review");
+}
+
 function renderNextActions() {
   const actions = [];
   const latestMistake = state.mistakes[state.mistakes.length - 1];
@@ -659,6 +908,8 @@ function submitAnswer() {
 }
 
 function bindEvents() {
+  els.customTopicForm.addEventListener("submit", createCustomTopic);
+
   els.topicList.addEventListener("click", (event) => {
     const button = event.target.closest("[data-topic]");
     if (!button) return;

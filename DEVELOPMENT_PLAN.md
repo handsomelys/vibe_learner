@@ -72,12 +72,13 @@
 - 已加入 `survey.schema.json`
 - 已加入 Ray 和 vLLM 的种子 survey report
 - 已加入 `npm run survey` 离线报告生成器
+- 已加入页面内自定义主题输入入口
 - 已在复盘页展示调研摘要、概念地图、误区、题目种子和来源
 - 已在 `npm run validate` 中校验 survey report 与课程章节引用
 
 计划：
 
-- 输入：技术主题，例如 Ray、vLLM、Kubernetes
+- 接入真实 Survey Agent 任务队列
 - 资料源：官方文档、GitHub、论文、示例代码、可靠博客
 - 输出：主题地图、核心概念、学习路径、练习题素材
 - 记录来源，避免内容不可追溯

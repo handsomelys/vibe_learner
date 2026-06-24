@@ -23,6 +23,22 @@
             <strong id="topicCount">0</strong>
           </div>
           <div id="topicList" class="topic-list"></div>
+          <form class="topic-create-form" id="customTopicForm">
+            <div class="section-heading compact">
+              <span>New Topic</span>
+              <strong>Survey</strong>
+            </div>
+            <label>
+              <span>主题名</span>
+              <input id="customTopicTitle" type="text" placeholder="例如 CUDA / Kubernetes" autocomplete="off" />
+            </label>
+            <label>
+              <span>来源链接</span>
+              <input id="customTopicSource" type="url" placeholder="可选：官方文档或论文链接" autocomplete="off" />
+            </label>
+            <button class="primary-action topic-create-button" type="submit">生成调研草稿</button>
+            <p class="topic-create-status" id="customTopicStatus" aria-live="polite"></p>
+          </form>
         </section>
 
         <nav class="lesson-nav" id="lessonNav" aria-label="课程章节"></nav>
@@ -44,7 +60,7 @@
             <span>Product</span>
             <strong>v0.4</strong>
           </div>
-          <p>多主题课程、rubric 评分、内容校验、Survey Report。</p>
+          <p>多主题课程、rubric 评分、Survey Report、自定义主题入口。</p>
           <small>Next: Course Builder 审核发布流。</small>
         </section>
       </aside>

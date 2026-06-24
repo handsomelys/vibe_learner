@@ -33,7 +33,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -116,6 +117,50 @@ h1 {
 .topic-list {
   display: grid;
   gap: 8px;
+}
+
+.topic-create-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.topic-create-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 780;
+}
+
+.topic-create-form input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.topic-create-form input:focus {
+  border-color: #9fc5ff;
+  outline: 3px solid rgba(20, 107, 223, 0.12);
+}
+
+.topic-create-button {
+  width: 100%;
+}
+
+.topic-create-status {
+  min-height: 18px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .topic-button {
