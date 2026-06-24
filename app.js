@@ -79,6 +79,9 @@ const els = {
   surveyConcepts: document.querySelector("#surveyConcepts"),
   surveyPitfalls: document.querySelector("#surveyPitfalls"),
   surveyQuestionSeeds: document.querySelector("#surveyQuestionSeeds"),
+  codexPrompt: document.querySelector("#codexPrompt"),
+  copyCodexPrompt: document.querySelector("#copyCodexPrompt"),
+  codexPromptStatus: document.querySelector("#codexPromptStatus"),
   customTopicForm: document.querySelector("#customTopicForm"),
   customTopicTitle: document.querySelector("#customTopicTitle"),
   customTopicSource: document.querySelector("#customTopicSource"),
@@ -601,6 +604,7 @@ function renderSurveyReport() {
     els.surveyConcepts.innerHTML = "";
     els.surveyPitfalls.innerHTML = "";
     els.surveyQuestionSeeds.innerHTML = "";
+    renderCodexPrompt();
     return;
   }
 
@@ -637,6 +641,73 @@ function renderSurveyReport() {
       `,
     )
     .join("");
+  renderCodexPrompt();
+}
+
+function buildCodexPrompt() {
+  const topic = state.topic;
+  const survey = state.survey;
+  if (!topic) return "";
+  const sources = survey?.sources?.length ? survey.sources : topic.sources || [];
+  const sourceLines = sources.length
+    ? sources.map((source) => `- ${source.label}: ${source.url}`).join("\n")
+    : "- 暂无来源，请优先寻找官方文档、论文、源码或可靠技术资料。";
+  const currentSurvey = survey
+    ? JSON.stringify(
+        {
+          topicId: survey.topicId,
+          reviewStatus: survey.reviewStatus,
+          summary: survey.summary,
+          conceptMap: survey.conceptMap,
+          commonPitfalls: survey.commonPitfalls,
+          questionSeeds: survey.questionSeeds,
+        },
+        null,
+        2,
+      )
+    : "当前主题还没有 survey report。";
+
+  return `你是 Vibe Learner 的 Survey Agent，请调研技术主题「${topic.title}」并输出可审核的学习调研报告。
+
+目标：
+1. 优先基于官方文档、论文、源码、示例代码和可靠技术资料调研。
+2. 输出结构化 survey report，字段需要覆盖 summary、goals、sources、conceptMap、recommendedLessons、commonPitfalls、questionSeeds、builderNotes。
+3. 每个关键概念都要说明 whyItMatters，并尽量关联来源。
+4. questionSeeds 要能转成单选、多选、代码阅读、Debug、开放问答等练习。
+5. 最后给出 Course Builder 可以直接使用的章节建议。
+
+已有来源：
+${sourceLines}
+
+当前课程上下文：
+- topicId: ${topic.id}
+- title: ${topic.title}
+- subtitle: ${topic.subtitle}
+- status: ${topic.status}
+- lessons: ${(topic.lessons || []).map((lesson) => `${lesson.id}:${lesson.title}`).join(", ")}
+
+当前 survey draft：
+${currentSurvey}
+
+请用 JSON 返回，不要输出 Markdown 解释。`;
+}
+
+function renderCodexPrompt() {
+  els.codexPrompt.value = buildCodexPrompt();
+  els.codexPromptStatus.textContent = "复制后可直接交给 Codex 执行调研。";
+}
+
+async function copyCodexPrompt() {
+  const prompt = els.codexPrompt.value;
+  if (!prompt) return;
+  try {
+    await navigator.clipboard.writeText(prompt);
+    els.codexPromptStatus.textContent = "已复制 Codex 调研任务。";
+  } catch {
+    els.codexPrompt.focus();
+    els.codexPrompt.select();
+    els.codexPromptStatus.textContent = "已选中任务文本，可以手动复制。";
+  }
 }
 
 function createDraftCourse(title, id) {
@@ -909,6 +980,7 @@ function submitAnswer() {
 
 function bindEvents() {
   els.customTopicForm.addEventListener("submit", createCustomTopic);
+  els.copyCodexPrompt.addEventListener("click", copyCodexPrompt);
 
   els.topicList.addEventListener("click", (event) => {
     const button = event.target.closest("[data-topic]");

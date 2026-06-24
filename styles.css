@@ -749,6 +749,34 @@ h1 {
   line-height: 1.65;
 }
 
+.codex-handoff {
+  display: grid;
+  gap: 10px;
+}
+
+.codex-handoff textarea {
+  width: 100%;
+  min-height: 180px;
+  max-height: 320px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbff;
+  color: var(--ink);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.codex-copy-status {
+  min-height: 18px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .map-node {
   display: flex;
   align-items: center;
