@@ -347,6 +347,14 @@ Interactive Tutor 负责追问和解释。
 - 生成课程草稿
 - 人工审核
 
+当前离线版本已包含：
+
+- 结构化 survey report 数据模型
+- Ray/vLLM 两个种子调研报告
+- 离线 report 生成命令
+- report 校验与课程章节引用检查
+- 复盘页展示调研摘要、概念地图、误区、题目种子和来源
+
 ### v0.5：Interactive Tutor
 
 目标：从做题系统升级为 AI 老师。

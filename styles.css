@@ -594,7 +594,8 @@ h1 {
 
 .goal-list,
 .review-goal-list,
-.next-action-list {
+.next-action-list,
+.survey-card-list {
   display: grid;
   gap: 10px;
   margin-bottom: 18px;
@@ -645,6 +646,62 @@ h1 {
   font-size: 13px;
   font-weight: 760;
   line-height: 1.55;
+}
+
+.survey-report-block {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.survey-summary {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.survey-subheading {
+  margin: 14px 0 8px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.survey-card {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.survey-card strong {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.survey-card span,
+.survey-card small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.survey-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.survey-pitfall-list {
+  margin: 0 0 18px;
+  padding-left: 18px;
+  color: #74400a;
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 .map-node {

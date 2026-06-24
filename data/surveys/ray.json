@@ -1,0 +1,93 @@
+{
+  "topicId": "ray",
+  "title": "Ray Survey Report",
+  "version": "2026-06-24.seed",
+  "reviewStatus": "approved",
+  "summary": "Ray 的学习入口应先建立分布式执行心智模型，再进入 Task、Actor、Object Store 和资源调度。课程需要持续提醒学习者：Ray 的关键不是 API 记忆，而是如何保持并行度、减少数据移动、把状态放在合适的位置。",
+  "goals": [
+    "解释 Driver 提交任务后，调度器、Worker 和 Object Store 的协作链路。",
+    "区分 Task、Actor、ObjectRef 的使用边界。",
+    "识别会破坏并行度或造成对象复制的工程写法。"
+  ],
+  "sources": [
+    {
+      "label": "Ray Core Documentation",
+      "url": "https://docs.ray.io/en/latest/ray-core/walkthrough.html",
+      "type": "official-doc",
+      "note": "Ray Core 基础抽象、Task、Actor 和 ObjectRef 的官方入口。"
+    },
+    {
+      "label": "Ray Architecture Whitepaper",
+      "url": "https://docs.ray.io/en/latest/ray-contribute/whitepaper.html",
+      "type": "official-doc",
+      "note": "用于补充架构设计、调度和对象存储背景。"
+    }
+  ],
+  "conceptMap": [
+    {
+      "concept": "Driver",
+      "whyItMatters": "学习者需要知道用户进程负责组织计算图，而不是执行全部远程代码。",
+      "dependsOn": []
+    },
+    {
+      "concept": "Task 与 ObjectRef",
+      "whyItMatters": "ObjectRef 是理解异步提交、依赖传递和批量取回结果的核心。",
+      "dependsOn": ["Driver"]
+    },
+    {
+      "concept": "Actor",
+      "whyItMatters": "Actor 解释了 Ray 如何处理有状态、长期驻留和服务化场景。",
+      "dependsOn": ["Task 与 ObjectRef"]
+    },
+    {
+      "concept": "Object Store 与资源调度",
+      "whyItMatters": "这部分把 API 学习连接到真实性能问题：数据移动、资源声明和任务放置。",
+      "dependsOn": ["Task 与 ObjectRef", "Actor"]
+    }
+  ],
+  "recommendedLessons": [
+    {
+      "id": "architecture",
+      "title": "Ray Core 架构总览",
+      "objective": "先用一次 remote 调用串起 Driver、Scheduler、Worker、Object Store。"
+    },
+    {
+      "id": "task",
+      "title": "Task 与 ObjectRef",
+      "objective": "通过代码练习理解 remote 返回引用、ray.get 才同步等待。"
+    },
+    {
+      "id": "actor",
+      "title": "Actor 与状态管理",
+      "objective": "用有状态服务和模型常驻场景解释 Actor 的边界。"
+    },
+    {
+      "id": "resource",
+      "title": "资源调度与工程实践",
+      "objective": "把资源声明、批量提交和对象存储放进一个工程决策题。"
+    }
+  ],
+  "commonPitfalls": [
+    "把 remote 调用理解成同步函数调用，过早 ray.get 导致并行度消失。",
+    "把 Actor 当成所有远程执行的默认选择，忽略 Task 更适合无状态并行。",
+    "忽略大对象复制成本，没有利用 ObjectRef 传递依赖。"
+  ],
+  "questionSeeds": [
+    {
+      "lessonId": "task",
+      "kind": "code",
+      "prompt": "给出循环里 remote 后立刻 ray.get 的代码，让学习者判断并行度为什么被破坏。",
+      "answerFocus": "指出 Driver 被阻塞、任务近似串行，并给出先收集 refs 再统一 get 的改法。"
+    },
+    {
+      "lessonId": "actor",
+      "kind": "scenario",
+      "prompt": "给出模型加载昂贵、需要复用状态的场景，让学习者选择 Task 还是 Actor。",
+      "answerFocus": "选择 Actor，并解释长期驻留状态和避免重复初始化。"
+    }
+  ],
+  "builderNotes": [
+    "Ray 后续可以拆成 Ray Data、Train、Serve、Tune 专题。",
+    "练习题要多用代码阅读和工程判断，减少纯概念背诵。"
+  ]
+}

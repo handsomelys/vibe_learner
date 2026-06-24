@@ -1,0 +1,88 @@
+{
+  "topicId": "vllm",
+  "title": "vLLM Survey Report",
+  "version": "2026-06-24.seed",
+  "reviewStatus": "needs-review",
+  "summary": "vLLM 的学习路径应围绕在线推理服务展开：请求进入服务后，调度器如何组织 prefill/decode，PagedAttention 如何管理 KV Cache，连续批处理如何提升 GPU 利用率。",
+  "goals": [
+    "解释 API Server、Scheduler、GPU Worker 和流式输出之间的关系。",
+    "说清 PagedAttention 为什么能改善 KV Cache 显存利用率。",
+    "理解连续批处理如何影响吞吐、延迟和并发。"
+  ],
+  "sources": [
+    {
+      "label": "vLLM Documentation",
+      "url": "https://docs.vllm.ai/",
+      "type": "official-doc",
+      "note": "官方文档入口，后续应细化 serving、engine args 和 deployment。"
+    },
+    {
+      "label": "PagedAttention Paper",
+      "url": "https://arxiv.org/abs/2309.06180",
+      "type": "paper",
+      "note": "用于解释 KV Cache block 管理和显存碎片问题。"
+    }
+  ],
+  "conceptMap": [
+    {
+      "concept": "OpenAI-compatible Serving",
+      "whyItMatters": "学习者需要从真实服务入口理解 vLLM，而不是只记一个推理库名称。",
+      "dependsOn": []
+    },
+    {
+      "concept": "KV Cache",
+      "whyItMatters": "KV Cache 是大模型自回归生成中吞吐和显存压力的核心来源。",
+      "dependsOn": ["OpenAI-compatible Serving"]
+    },
+    {
+      "concept": "PagedAttention",
+      "whyItMatters": "它解释 vLLM 为什么能在多请求、不同长度上下文下提升显存利用率。",
+      "dependsOn": ["KV Cache"]
+    },
+    {
+      "concept": "Continuous Batching",
+      "whyItMatters": "连续批处理把调度策略和 GPU 利用率连接起来，是系统设计题的重点。",
+      "dependsOn": ["KV Cache", "PagedAttention"]
+    }
+  ],
+  "recommendedLessons": [
+    {
+      "id": "serving",
+      "title": "vLLM 服务总览",
+      "objective": "用请求流转建立服务、调度和 GPU worker 的整体模型。"
+    },
+    {
+      "id": "paged-attention",
+      "title": "PagedAttention 与 KV Cache",
+      "objective": "解释 KV Cache block、显存碎片和并发上下文长度差异。"
+    },
+    {
+      "id": "batching",
+      "title": "连续批处理",
+      "objective": "通过 prefill/decode 阶段理解动态 batch 的收益。"
+    }
+  ],
+  "commonPitfalls": [
+    "只把 vLLM 理解成 OpenAI API wrapper，忽略内部调度和缓存管理。",
+    "把 prefill 和 decode 的计算特征混在一起，无法解释吞吐瓶颈。",
+    "只关注 batch size，不考虑 KV Cache 显存占用和请求生命周期。"
+  ],
+  "questionSeeds": [
+    {
+      "lessonId": "paged-attention",
+      "kind": "open",
+      "prompt": "让学习者解释 PagedAttention 为什么能减少不同长度请求造成的显存浪费。",
+      "answerFocus": "需要提到 KV Cache block、碎片、并发请求和显存利用率。"
+    },
+    {
+      "lessonId": "batching",
+      "kind": "debug",
+      "prompt": "给出 GPU 利用率低、decode batch size 很小的服务指标，让学习者定位调度问题。",
+      "answerFocus": "优先排查连续批处理、并发配置和请求队列，而不是无关的前端或文档问题。"
+    }
+  ],
+  "builderNotes": [
+    "vLLM 课程目前仍是 seed，应继续补官方来源到具体章节。",
+    "后续可增加与 Ray Serve、Kubernetes、Tensor Parallel 的依赖关系。"
+  ]
+}

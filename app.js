@@ -1,6 +1,8 @@
 const state = {
   topics: [],
+  surveys: new Map(),
   topic: null,
+  survey: null,
   topicIndex: 0,
   lessonIndex: 0,
   view: "learn",
@@ -71,6 +73,11 @@ const els = {
   roadmapList: document.querySelector("#roadmapList"),
   sourceCount: document.querySelector("#sourceCount"),
   sourceList: document.querySelector("#sourceList"),
+  surveyStatus: document.querySelector("#surveyStatus"),
+  surveySummary: document.querySelector("#surveySummary"),
+  surveyConcepts: document.querySelector("#surveyConcepts"),
+  surveyPitfalls: document.querySelector("#surveyPitfalls"),
+  surveyQuestionSeeds: document.querySelector("#surveyQuestionSeeds"),
   resetProgress: document.querySelector("#resetProgress"),
 };
 
@@ -99,6 +106,7 @@ async function loadTopics() {
   );
 
   state.topics = responses;
+  state.surveys = await loadSurveyReports(state.topics);
   const savedTopicId = progressStorage?.getItem(`${storagePrefix}:active-topic`);
   const initialIndex = Math.max(
     0,
@@ -110,6 +118,7 @@ async function loadTopics() {
 function setTopic(index, options = {}) {
   state.topicIndex = index;
   state.topic = state.topics[index];
+  state.survey = state.surveys.get(state.topic.id) || null;
   state.lessonIndex = 0;
   state.questionIndex = 0;
   state.selectedOptions = new Set();
@@ -120,6 +129,17 @@ function setTopic(index, options = {}) {
   progressStorage?.setItem(`${storagePrefix}:active-topic`, state.topic.id);
   renderAll(true);
   setView(state.view);
+}
+
+async function loadSurveyReports(topics) {
+  const entries = await Promise.all(
+    topics.map(async (topic) => {
+      const response = await fetch(`./data/surveys/${topic.id}.json`);
+      if (!response.ok) return [topic.id, null];
+      return [topic.id, await response.json()];
+    }),
+  );
+  return new Map(entries.filter(([, survey]) => survey));
 }
 
 function renderTopics() {
@@ -481,7 +501,9 @@ function renderRoadmap() {
 }
 
 function renderSources() {
-  const sources = state.topic.sources || [];
+  const surveySources = state.survey?.sources || [];
+  const courseSources = state.topic.sources || [];
+  const sources = surveySources.length > 0 ? surveySources : courseSources;
   els.sourceCount.textContent = String(sources.length).padStart(2, "0");
   if (sources.length === 0) {
     els.sourceList.innerHTML = `<div class="empty-source">等待 Survey Agent 补充来源。</div>`;
@@ -493,8 +515,54 @@ function renderSources() {
       (source) => `
         <a class="source-link" href="${source.url}" target="_blank" rel="noreferrer">
           <span>${source.label}</span>
-          <small>${source.note || source.url}</small>
+          <small>${source.type ? `${source.type} · ` : ""}${source.note || source.url}</small>
         </a>
+      `,
+    )
+    .join("");
+}
+
+function renderSurveyReport() {
+  const survey = state.survey;
+  if (!survey) {
+    els.surveyStatus.textContent = "待生成";
+    els.surveySummary.textContent = "当前主题还没有 Survey Report。可以用 npm run survey 先生成离线调研草稿。";
+    els.surveyConcepts.innerHTML = "";
+    els.surveyPitfalls.innerHTML = "";
+    els.surveyQuestionSeeds.innerHTML = "";
+    return;
+  }
+
+  const statusLabels = {
+    draft: "草稿",
+    "needs-review": "待审核",
+    approved: "已审核",
+    published: "已发布",
+  };
+  els.surveyStatus.textContent = statusLabels[survey.reviewStatus] || survey.reviewStatus;
+  els.surveySummary.textContent = survey.summary || "等待补充调研摘要。";
+  els.surveyConcepts.innerHTML = (survey.conceptMap || [])
+    .map(
+      (item) => `
+        <section class="survey-card">
+          <strong>${item.concept}</strong>
+          <p>${item.whyItMatters}</p>
+          ${item.dependsOn?.length ? `<small>依赖：${item.dependsOn.join("、")}</small>` : ""}
+        </section>
+      `,
+    )
+    .join("");
+  els.surveyPitfalls.innerHTML = (survey.commonPitfalls || [])
+    .map((pitfall) => `<li>${pitfall}</li>`)
+    .join("");
+  els.surveyQuestionSeeds.innerHTML = (survey.questionSeeds || [])
+    .map(
+      (seed) => `
+        <section class="survey-card">
+          <span>${seed.kind} · ${seed.lessonId}</span>
+          <strong>${seed.prompt}</strong>
+          <p>${seed.answerFocus}</p>
+        </section>
       `,
     )
     .join("");
@@ -686,6 +754,7 @@ function renderAll(includeQuestion = true) {
   renderMistakes();
   renderRoadmap();
   renderSources();
+  renderSurveyReport();
   renderNextActions();
   if (includeQuestion) renderQuestion();
 }

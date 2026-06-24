@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibe-learner.local/survey.schema.json",
+  "title": "Vibe Learner Survey Report",
+  "type": "object",
+  "required": [
+    "topicId",
+    "title",
+    "version",
+    "reviewStatus",
+    "goals",
+    "sources",
+    "conceptMap",
+    "recommendedLessons",
+    "commonPitfalls",
+    "questionSeeds"
+  ],
+  "properties": {
+    "topicId": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "reviewStatus": {
+      "type": "string",
+      "enum": ["draft", "needs-review", "approved", "published"]
+    },
+    "summary": { "type": "string" },
+    "goals": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "url"],
+        "properties": {
+          "label": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "minLength": 1 },
+          "type": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "conceptMap": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["concept", "whyItMatters"],
+        "properties": {
+          "concept": { "type": "string", "minLength": 1 },
+          "whyItMatters": { "type": "string", "minLength": 1 },
+          "dependsOn": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "recommendedLessons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "objective"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "objective": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "commonPitfalls": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "questionSeeds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["lessonId", "kind", "prompt", "answerFocus"],
+        "properties": {
+          "lessonId": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "minLength": 1 },
+          "prompt": { "type": "string", "minLength": 1 },
+          "answerFocus": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "builderNotes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

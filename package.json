@@ -6,6 +6,7 @@
   "scripts": {
     "start": "./scripts/start.sh",
     "validate": "node scripts/validate-content.mjs",
-    "draft": "node scripts/create-topic-draft.mjs"
+    "draft": "node scripts/create-topic-draft.mjs",
+    "survey": "node scripts/create-survey-report.mjs"
   }
 }

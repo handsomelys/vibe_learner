@@ -42,10 +42,10 @@
         <section class="release-panel" aria-label="产品阶段">
           <div class="section-heading compact">
             <span>Product</span>
-            <strong>v0.2</strong>
+            <strong>v0.4</strong>
           </div>
-          <p>多主题课程、题型系统、rubric 评分、内容校验。</p>
-          <small>Next: Survey Agent 离线报告和审核流。</small>
+          <p>多主题课程、rubric 评分、内容校验、Survey Report。</p>
+          <small>Next: Course Builder 审核发布流。</small>
         </section>
       </aside>
 
@@ -156,6 +156,19 @@
                 <strong>推荐动作</strong>
               </div>
               <div id="nextActionList" class="next-action-list"></div>
+              <div class="survey-report-block">
+                <div class="section-heading compact">
+                  <span>Survey Report</span>
+                  <strong id="surveyStatus">待生成</strong>
+                </div>
+                <p class="survey-summary" id="surveySummary"></p>
+                <div class="survey-subheading">概念地图</div>
+                <div class="survey-card-list" id="surveyConcepts"></div>
+                <div class="survey-subheading">常见误区</div>
+                <ul class="survey-pitfall-list" id="surveyPitfalls"></ul>
+                <div class="survey-subheading">题目种子</div>
+                <div class="survey-card-list" id="surveyQuestionSeeds"></div>
+              </div>
               <div class="section-heading">
                 <span>Roadmap</span>
                 <strong>下一步开发</strong>

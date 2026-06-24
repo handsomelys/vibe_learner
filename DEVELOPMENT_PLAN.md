@@ -67,6 +67,14 @@
 
 目标：让 agent 自动调研技术主题，并输出结构化课程数据。
 
+当前进展：
+
+- 已加入 `survey.schema.json`
+- 已加入 Ray 和 vLLM 的种子 survey report
+- 已加入 `npm run survey` 离线报告生成器
+- 已在复盘页展示调研摘要、概念地图、误区、题目种子和来源
+- 已在 `npm run validate` 中校验 survey report 与课程章节引用
+
 计划：
 
 - 输入：技术主题，例如 Ray、vLLM、Kubernetes
@@ -74,6 +82,7 @@
 - 输出：主题地图、核心概念、学习路径、练习题素材
 - 记录来源，避免内容不可追溯
 - 增加人工审核入口
+- 把已审核的 survey report 转成课程草稿
 
 关键原则：
 
