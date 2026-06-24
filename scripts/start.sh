@@ -7,13 +7,13 @@ HOST="${HOST:-127.0.0.1}"
 
 cd "$ROOT_DIR"
 
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "python3 is required to start Vibe Learner."
+if ! command -v node >/dev/null 2>&1; then
+  echo "node is required to start Vibe Learner."
   exit 1
 fi
 
-echo "Starting Vibe Learner..."
+echo "Starting Vibe Learner with Codex survey API..."
 echo "URL: http://${HOST}:${PORT}/"
 echo "Press Ctrl+C to stop."
 
-python3 -m http.server "$PORT" --bind "$HOST"
+HOST="$HOST" PORT="$PORT" node server.mjs

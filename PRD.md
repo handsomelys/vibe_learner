@@ -354,6 +354,7 @@ Interactive Tutor 负责追问和解释。
 - 离线 report 生成命令
 - 页面内自定义主题输入入口
 - Codex Agent handoff 任务复制入口
+- 本地 Codex survey API 执行入口
 - report 校验与课程章节引用检查
 - 复盘页展示调研摘要、概念地图、误区、题目种子和来源
 

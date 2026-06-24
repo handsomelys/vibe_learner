@@ -80,6 +80,7 @@ const els = {
   surveyPitfalls: document.querySelector("#surveyPitfalls"),
   surveyQuestionSeeds: document.querySelector("#surveyQuestionSeeds"),
   codexPrompt: document.querySelector("#codexPrompt"),
+  runCodexSurvey: document.querySelector("#runCodexSurvey"),
   copyCodexPrompt: document.querySelector("#copyCodexPrompt"),
   codexPromptStatus: document.querySelector("#codexPromptStatus"),
   customTopicForm: document.querySelector("#customTopicForm"),
@@ -99,6 +100,10 @@ function currentQuestions() {
 
 function storageKey(topicId = state.topic?.id) {
   return `${storagePrefix}:${topicId || "unknown"}`;
+}
+
+function surveyOverrideKey() {
+  return `${storagePrefix}:survey-overrides`;
 }
 
 function slugify(value) {
@@ -155,6 +160,9 @@ async function loadTopics() {
   for (const survey of customBundle.surveys) {
     state.surveys.set(survey.topicId, survey);
   }
+  for (const survey of loadSurveyOverrides()) {
+    state.surveys.set(survey.topicId, survey);
+  }
   const savedTopicId = progressStorage?.getItem(`${storagePrefix}:active-topic`);
   const initialIndex = Math.max(
     0,
@@ -178,6 +186,27 @@ function loadCustomTopicBundle() {
     progressStorage.removeItem(customTopicStorageKey);
     return { topics: [], surveys: [] };
   }
+}
+
+function loadSurveyOverrides() {
+  if (!progressStorage) return [];
+  const raw = progressStorage.getItem(surveyOverrideKey());
+  if (!raw) return [];
+
+  try {
+    const payload = JSON.parse(raw);
+    return Array.isArray(payload) ? payload : [];
+  } catch {
+    progressStorage.removeItem(surveyOverrideKey());
+    return [];
+  }
+}
+
+function saveSurveyOverride(report) {
+  if (!progressStorage || !report?.topicId) return;
+  const reports = loadSurveyOverrides().filter((item) => item.topicId !== report.topicId);
+  reports.push(report);
+  progressStorage.setItem(surveyOverrideKey(), JSON.stringify(reports));
 }
 
 function saveCustomTopicBundle() {
@@ -694,7 +723,7 @@ ${currentSurvey}
 
 function renderCodexPrompt() {
   els.codexPrompt.value = buildCodexPrompt();
-  els.codexPromptStatus.textContent = "复制后可直接交给 Codex 执行调研。";
+  els.codexPromptStatus.textContent = "可以直接运行本地 Codex 调研，也可以复制任务手动执行。";
 }
 
 async function copyCodexPrompt() {
@@ -707,6 +736,46 @@ async function copyCodexPrompt() {
     els.codexPrompt.focus();
     els.codexPrompt.select();
     els.codexPromptStatus.textContent = "已选中任务文本，可以手动复制。";
+  }
+}
+
+async function runCodexSurvey() {
+  const prompt = els.codexPrompt.value;
+  if (!prompt || !state.topic) return;
+
+  els.runCodexSurvey.disabled = true;
+  els.codexPromptStatus.textContent = "Codex 正在调研并生成 Survey Report...";
+  try {
+    const response = await fetch("./api/survey/run", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        prompt,
+        topic: {
+          id: state.topic.id,
+          title: state.topic.title,
+          subtitle: state.topic.subtitle,
+          status: state.topic.status,
+          lessons: state.topic.lessons || [],
+        },
+        survey: state.survey,
+        sourceUrl: state.survey?.sources?.[0]?.url || state.topic.sources?.[0]?.url || "",
+      }),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "Codex 调研失败。");
+
+    state.survey = payload.report;
+    state.surveys.set(payload.report.topicId, payload.report);
+    saveSurveyOverride(payload.report);
+    saveCustomTopicBundle();
+    renderAll(false);
+    setView("review");
+    els.codexPromptStatus.textContent = `已由 ${payload.provider || "Codex"} / ${payload.model || "model"} 更新 Survey Report。`;
+  } catch (error) {
+    els.codexPromptStatus.textContent = error.message;
+  } finally {
+    els.runCodexSurvey.disabled = false;
   }
 }
 
@@ -980,6 +1049,7 @@ function submitAnswer() {
 
 function bindEvents() {
   els.customTopicForm.addEventListener("submit", createCustomTopic);
+  els.runCodexSurvey.addEventListener("click", runCodexSurvey);
   els.copyCodexPrompt.addEventListener("click", copyCodexPrompt);
 
   els.topicList.addEventListener("click", (event) => {

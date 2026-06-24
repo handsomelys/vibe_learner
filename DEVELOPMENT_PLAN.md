@@ -74,13 +74,14 @@
 - 已加入 `npm run survey` 离线报告生成器
 - 已加入页面内自定义主题输入入口
 - 已加入 Codex Agent handoff 任务复制入口
+- 已加入本地 Codex survey API，复用 `~/.codex/config.toml` 的 provider/model/key
 - 已在复盘页展示调研摘要、概念地图、误区、题目种子和来源
 - 已在 `npm run validate` 中校验 survey report 与课程章节引用
 
 计划：
 
-- 接入真实 Survey Agent 任务队列
-- 接入 Codex SDK 或后端执行器，把 handoff prompt 变成异步任务
+- 接入真实 Survey Agent 任务队列和异步状态
+- 增加 report 审核、diff、批准、回滚
 - 资料源：官方文档、GitHub、论文、示例代码、可靠博客
 - 输出：主题地图、核心概念、学习路径、练习题素材
 - 记录来源，避免内容不可追溯
